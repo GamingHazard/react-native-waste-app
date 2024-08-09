@@ -121,15 +121,6 @@ const ThreadScreen = () => {
             }}
           />
         </View>
-        <View
-          style={{
-            alignSelf: "center",
-            width: 300,
-            alignItems: "center",
-          }}
-        >
-          <Text style={{ fontWeight: "bold", fontSize: 25 }}>Community</Text>
-        </View>
 
         {/* Add Content button */}
         <TouchableOpacity

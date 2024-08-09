@@ -87,22 +87,21 @@ const Buy = () => {
           }}
         >
           <TouchableOpacity
+            onPress={() => setModalVisible(true)}
             style={{
-              justifyContent: "center",
-              alignItems: "center",
               backgroundColor: "black",
               borderRadius: 50,
-              width: 40,
-              height: 40,
+
               marginHorizontal: 10,
+              flexDirection: "row",
+              padding: 15,
+              justifyContent: "space-evenly",
             }}
           >
-            <AntDesign
-              onPress={() => setModalVisible(true)}
-              name="plus"
-              size={24}
-              color="white"
-            />
+            <Text style={{ color: "white", marginHorizontal: 20 }}>
+              Create Post
+            </Text>
+            <AntDesign name="plus" size={24} color="white" />
           </TouchableOpacity>
         </View>
       </View>

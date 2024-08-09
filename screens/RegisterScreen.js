@@ -31,7 +31,10 @@ const RegisterScreen = () => {
     };
 
     try {
-      const response = await axios.post("https://waste-recycle-app-backend.onrender.com/register", user);
+      const response = await axios.post(
+        "https://waste-recycle-app-backend.onrender.com/register",
+        user
+      );
       console.log(response);
       Alert.alert(
         "Registration successful",
@@ -53,12 +56,15 @@ const RegisterScreen = () => {
   };
 
   return (
-    <SafeAreaView
-      style={{ flex: 1, backgroundColor: "white", alignItems: "center" }}
-    >
+    <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
       <View style={{ marginTop: 50 }}>
         <Image
-          style={{ width: 150, height: 100, resizeMode: "contain" }}
+          style={{
+            width: 150,
+            height: 100,
+            resizeMode: "contain",
+            alignSelf: "center",
+          }}
           source={{
             uri: "https://freelogopng.com/images/all_img/1688663386threads-logo-transparent.png",
           }}
@@ -66,7 +72,13 @@ const RegisterScreen = () => {
       </View>
 
       <KeyboardAvoidingView>
-        <View style={{ alignItems: "center", justifyContent: "center" }}>
+        <View
+          style={{
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 10,
+          }}
+        >
           <Text style={{ fontSize: 17, fontWeight: "bold", marginTop: 25 }}>
             Register to Your Account
           </Text>
@@ -82,6 +94,7 @@ const RegisterScreen = () => {
               borderWidth: 1,
               paddingVertical: 5,
               borderRadius: 5,
+              marginHorizontal: 16,
             }}
           >
             <Ionicons
@@ -115,6 +128,7 @@ const RegisterScreen = () => {
               borderWidth: 1,
               paddingVertical: 5,
               borderRadius: 5,
+              marginHorizontal: 16,
             }}
           >
             <MaterialIcons
@@ -147,6 +161,7 @@ const RegisterScreen = () => {
                 borderWidth: 1,
                 paddingVertical: 5,
                 borderRadius: 5,
+                marginHorizontal: 16,
               }}
             >
               <AntDesign
@@ -180,7 +195,6 @@ const RegisterScreen = () => {
             width: 200,
             backgroundColor: "black",
             padding: 15,
-            marginTop: 40,
             marginLeft: "auto",
             marginRight: "auto",
             borderRadius: 6,
@@ -209,7 +223,7 @@ const RegisterScreen = () => {
           style={{ marginTop: 10 }}
         >
           <Text style={{ textAlign: "center", fontSize: 16 }}>
-            Already have an account? Sign In
+            Already have an account? Login
           </Text>
         </Pressable>
       </KeyboardAvoidingView>

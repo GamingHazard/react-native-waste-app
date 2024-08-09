@@ -11,7 +11,7 @@ import jwt_decode from "jwt-decode";
 import axios from "axios";
 import { UserType } from "../UserContext";
 import User from "../components/User";
-import Spinner from 'react-native-loading-spinner-overlay'; // Import the Spinner component
+import Spinner from "react-native-loading-spinner-overlay"; // Import the Spinner component
 
 const ActivityScreen = () => {
   const [selectedButton, setSelctedButton] = useState("people");
@@ -32,23 +32,25 @@ const ActivityScreen = () => {
         const userId = decodedToken.userId;
         setUserId(userId);
 
-        let endpoint = '';
+        let endpoint = "";
         switch (selectedButton) {
           case "people":
             endpoint = `/user/${userId}`;
             break;
           case "all":
-            endpoint = '/users'; // Adjust this endpoint as needed
+            endpoint = "/users"; // Adjust this endpoint as needed
             break;
           case "requests":
-            endpoint = '/requests'; // Adjust this endpoint as needed
+            endpoint = "/requests"; // Adjust this endpoint as needed
             break;
           default:
             endpoint = `/user/${userId}`;
             break;
         }
 
-        const response = await axios.get(`https://waste-recycle-app-backend.onrender.com${endpoint}`);
+        const response = await axios.get(
+          `https://waste-recycle-app-backend.onrender.com${endpoint}`
+        );
         setUsers(response.data);
       } catch (error) {
         console.log("error", error);
@@ -61,7 +63,7 @@ const ActivityScreen = () => {
   }, [selectedButton]);
 
   return (
-    <ScrollView style={{ marginTop: 50 }}>
+    <ScrollView style={{ marginTop: 50, flex: 1 }}>
       <View style={{ padding: 10 }}>
         <Text style={{ fontSize: 18, fontWeight: "bold" }}>Activity</Text>
 
@@ -152,7 +154,7 @@ const ActivityScreen = () => {
                   : { color: "black" },
               ]}
             >
-              Requests
+              Reqst
             </Text>
           </TouchableOpacity>
         </View>
@@ -161,7 +163,7 @@ const ActivityScreen = () => {
           {loading ? (
             <Spinner
               visible={loading}
-              textContent={'Loading...'}
+              textContent={"Loading..."}
               textStyle={styles.spinnerTextStyle}
             />
           ) : (
@@ -181,6 +183,6 @@ export default ActivityScreen;
 
 const styles = StyleSheet.create({
   spinnerTextStyle: {
-    color: '#FFF'
-  }
+    color: "#FFF",
+  },
 });

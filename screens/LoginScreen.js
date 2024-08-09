@@ -64,12 +64,15 @@ const LoginScreen = () => {
   };
 
   return (
-    <SafeAreaView
-      style={{ flex: 1, backgroundColor: "white", alignItems: "center" }}
-    >
+    <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
       <View style={{ marginTop: 50 }}>
         <Image
-          style={{ width: 150, height: 100, resizeMode: "contain" }}
+          style={{
+            width: 150,
+            height: 100,
+            resizeMode: "contain",
+            alignSelf: "center",
+          }}
           source={{
             uri: "https://freelogopng.com/images/all_img/1688663386threads-logo-transparent.png",
           }}
@@ -77,7 +80,13 @@ const LoginScreen = () => {
       </View>
 
       <KeyboardAvoidingView>
-        <View style={{ alignItems: "center", justifyContent: "center" }}>
+        <View
+          style={{
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 20,
+          }}
+        >
           <Text style={{ fontSize: 17, fontWeight: "bold", marginTop: 25 }}>
             Login to Your Account
           </Text>
@@ -93,6 +102,7 @@ const LoginScreen = () => {
               borderWidth: 1,
               paddingVertical: 5,
               borderRadius: 5,
+              marginHorizontal: 10,
             }}
           >
             <MaterialIcons
@@ -125,6 +135,7 @@ const LoginScreen = () => {
                 borderWidth: 1,
                 paddingVertical: 5,
                 borderRadius: 5,
+                marginHorizontal: 10,
               }}
             >
               <AntDesign
@@ -155,6 +166,7 @@ const LoginScreen = () => {
               alignItems: "center",
               justifyContent: "space-between",
               marginTop: 12,
+              marginHorizontal: 10,
             }}
           >
             <Text>Keep me logged in</Text>
@@ -172,12 +184,13 @@ const LoginScreen = () => {
             width: 200,
             backgroundColor: "black",
             padding: 15,
-            marginTop: 40,
+
             marginLeft: "auto",
             marginRight: "auto",
             borderRadius: 6,
             alignItems: "center",
             justifyContent: "center",
+            marginVertical: 16,
           }}
         >
           {loading ? (
