@@ -4,21 +4,18 @@ import {
   View,
   ScrollView,
   Image,
-  Button,
   Modal,
-  Pressable,
-  KeyboardAvoidingView,
+  TouchableOpacity,
 } from "react-native";
 import React, { useEffect, useContext, useState, useCallback } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import jwt_decode from "jwt-decode";
 import { UserType } from "../UserContext";
 import axios from "axios";
-import { AntDesign, FontAwesome, Ionicons } from "@expo/vector-icons";
+import { AntDesign } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import Spinner from "react-native-loading-spinner-overlay";
 import { BlurView } from "expo-blur";
-import { TouchableOpacity } from "react-native";
 import CreateBuyPost from "./CreateBuyPost";
 
 const Buy = () => {
@@ -26,6 +23,7 @@ const Buy = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const [socket, setSocket] = useState(null);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -47,6 +45,44 @@ const Buy = () => {
       fetchPosts();
     }, [])
   );
+
+  useEffect(() => {
+    // Establish WebSocket connection
+    const ws = new WebSocket("ws://your-server-ip:3000"); // Replace with your WebSocket server URL
+
+    ws.onopen = () => {
+      console.log("WebSocket connection established");
+    };
+
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+
+      switch (data.type) {
+        case "NEW_BUY_POST":
+          setPosts((prevPosts) => [data.post, ...prevPosts]);
+          break;
+        case "UPDATED_BUY_POST":
+          setPosts((prevPosts) =>
+            prevPosts.map((post) =>
+              post._id === data.post._id ? data.post : post
+            )
+          );
+          break;
+        default:
+          break;
+      }
+    };
+
+    ws.onclose = () => {
+      console.log("WebSocket connection closed");
+    };
+
+    setSocket(ws);
+
+    return () => {
+      ws.close();
+    };
+  }, []);
 
   const fetchPosts = async () => {
     setLoading(true);
@@ -71,15 +107,12 @@ const Buy = () => {
     <View>
       <View
         style={{
-          backgroundColor: "white",
-          padding: 16,
           backgroundColor: "whitesmoke",
+          padding: 16,
           flexDirection: "row",
           justifyContent: "center",
         }}
       >
-        {/* Add Content button */}
-
         <View
           style={{
             width: "100%",
@@ -91,7 +124,6 @@ const Buy = () => {
             style={{
               backgroundColor: "black",
               borderRadius: 50,
-
               marginHorizontal: 10,
               flexDirection: "row",
               padding: 15,
@@ -106,14 +138,10 @@ const Buy = () => {
         </View>
       </View>
 
-      {/* content */}
       <ScrollView
         style={{
           backgroundColor: "white",
           flex: 2,
-        }}
-        contentContainerStyle={{
-          transform: [{ scaleY: -1 }], // Flip the ScrollView vertically
         }}
       >
         <Spinner
@@ -156,20 +184,13 @@ const Buy = () => {
                 padding: 10,
               }}
             >
-              <View
-                style={{
-                  transform: [{ scaleY: -1 }], // Flip each item back to normal
-                }}
-              >
-                <View style={{ width: "100%", height: "auto" }}>
-                  <Text style={{ padding: 10 }}>{post?.content}</Text>
-                </View>
+              <View>
+                <Text style={{ padding: 10 }}>{post?.content}</Text>
               </View>
               <View
                 style={{
                   flexDirection: "row",
                   alignItems: "center",
-                  transform: [{ scaleY: -1 }], // Flip each item back to normal
                 }}
               >
                 <Image

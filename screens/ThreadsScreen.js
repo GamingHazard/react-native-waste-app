@@ -4,28 +4,25 @@ import {
   View,
   ScrollView,
   Image,
-  Button,
   Modal,
-  Pressable,
   KeyboardAvoidingView,
+  TouchableOpacity,
 } from "react-native";
 import React, { useEffect, useContext, useState, useCallback } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import jwt_decode from "jwt-decode";
 import { UserType } from "../UserContext";
 import axios from "axios";
-import { AntDesign, FontAwesome, Ionicons } from "@expo/vector-icons";
+import { AntDesign } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
-import Spinner from "react-native-loading-spinner-overlay";
 import { BlurView } from "expo-blur";
-import { TouchableOpacity } from "react-native";
 import CreatePost from "../components/CreatePost";
 
 const ThreadScreen = () => {
   const { userId, setUserId } = useContext(UserType);
   const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const [socket, setSocket] = useState(null);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -48,8 +45,45 @@ const ThreadScreen = () => {
     }, [])
   );
 
+  useEffect(() => {
+    // Establish WebSocket connection
+    const ws = new WebSocket("ws://your-server-ip:3000"); // Replace with your WebSocket server URL
+
+    ws.onopen = () => {
+      console.log("WebSocket connection established");
+    };
+
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+
+      switch (data.type) {
+        case "NEW_POST":
+          setPosts((prevPosts) => [data.post, ...prevPosts]);
+          break;
+        case "UPDATED_POST":
+          setPosts((prevPosts) =>
+            prevPosts.map((post) =>
+              post._id === data.post._id ? data.post : post
+            )
+          );
+          break;
+        default:
+          break;
+      }
+    };
+
+    ws.onclose = () => {
+      console.log("WebSocket connection closed");
+    };
+
+    setSocket(ws);
+
+    return () => {
+      ws.close();
+    };
+  }, []);
+
   const fetchPosts = async () => {
-    setLoading(true);
     try {
       const response = await axios.get(
         "https://waste-recycle-app-backend.onrender.com/get-posts"
@@ -57,8 +91,6 @@ const ThreadScreen = () => {
       setPosts(response.data);
     } catch (error) {
       console.log("error fetching posts", error);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -72,6 +104,9 @@ const ThreadScreen = () => {
         post._id === updatedPost._id ? updatedPost : post
       );
       setPosts(updatedPosts);
+
+      // Notify WebSocket server of the update (if needed)
+      socket.send(JSON.stringify({ type: "UPDATE_POST", post: updatedPost }));
     } catch (error) {
       console.log("Error liking the post", error);
     }
@@ -87,79 +122,36 @@ const ThreadScreen = () => {
         post._id === updatedPost._id ? updatedPost : post
       );
       setPosts(updatedPosts);
+
+      // Notify WebSocket server of the update (if needed)
+      socket.send(JSON.stringify({ type: "UPDATE_POST", post: updatedPost }));
     } catch (error) {
       console.error("Error unliking post:", error);
     }
   };
 
-  // Function to be passed to CreatePost for refreshing posts
   const refreshPosts = () => {
     fetchPosts();
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: "lightblue" }}>
-      <View
-        style={{
-          backgroundColor: "white",
-          padding: 16,
-          backgroundColor: "whitesmoke",
-          flexDirection: "row",
-          justifyContent: "center",
-        }}
-      >
-        <View style={{}}>
-          <Image
-            style={{
-              width: 50,
-              height: 50,
-              resizeMode: "contain",
-              flex: 1,
-            }}
-            source={{
-              uri: "https://freelogopng.com/images/all_img/1688663386threads-logo-transparent.png",
-            }}
-          />
-        </View>
-
-        {/* Add Content button */}
-        <TouchableOpacity
-          style={{
-            justifyContent: "center",
-            alignItems: "center",
-            backgroundColor: "black",
-            borderRadius: 50,
-            width: 40,
-            height: 40,
-            alignSelf: "flex-end",
-            marginHorizontal: 10,
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <Image
+          style={styles.logo}
+          source={{
+            uri: "https://freelogopng.com/images/all_img/1688663386threads-logo-transparent.png",
           }}
+        />
+        <TouchableOpacity
+          style={styles.addButton}
+          onPress={() => setModalVisible(true)}
         >
-          <AntDesign
-            onPress={() => setModalVisible(true)}
-            name="plus"
-            size={24}
-            color="white"
-          />
+          <AntDesign name="plus" size={24} color="white" />
         </TouchableOpacity>
       </View>
 
-      {/* content */}
-      <ScrollView
-        style={{
-          backgroundColor: "white",
-          flex: 2,
-        }}
-        contentContainerStyle={{
-          transform: [{ scaleY: -1 }], // Flip the ScrollView vertically
-        }}
-      >
-        <Spinner
-          visible={loading}
-          textContent={"Loading..."}
-          textStyle={styles.spinnerTextStyle}
-        />
-
+      <ScrollView style={styles.scrollView}>
         {modalVisible && (
           <BlurView intensity={50} style={styles.absolute}>
             <Modal
@@ -171,7 +163,7 @@ const ThreadScreen = () => {
               <View style={styles.modalView}>
                 <AntDesign
                   onPress={() => setModalVisible(false)}
-                  style={{ alignSelf: "flex-end" }}
+                  style={styles.closeButton}
                   name="close"
                   size={24}
                   color="red"
@@ -182,38 +174,25 @@ const ThreadScreen = () => {
           </BlurView>
         )}
 
-        <View style={{}}>
+        <View style={styles.postsContainer}>
           {posts?.map((post) => (
-            <View
-              key={post._id}
-              style={{
-                padding: 15,
-                borderColor: "#D0D0D0",
-                borderTopWidth: 1,
-                gap: 10,
-                padding: 10,
-              }}
-            >
-              <View
-                style={{
-                  transform: [{ scaleY: -1 }], // Flip each item back to normal
-                }}
-              >
-                <View style={{ width: "100%", height: "auto" }}>
-                  <Text style={{ padding: 10 }}>{post?.content}</Text>
-                </View>
-
-                {/* Heart Icon */}
-                <View
-                  style={{
-                    alignItems: "flex-end",
-                    gap: 10,
-                    marginTop: 15,
-                    paddingRight: 20,
-                    flexDirection: "row",
+            <View key={post._id} style={styles.postContainer}>
+              <View style={styles.postFooter}>
+                <Image
+                  style={styles.profileImage}
+                  source={{
+                    uri: "https://cdn-icons-png.flaticon.com/128/149/149071.png",
                   }}
-                >
-                  <Text style={{ marginTop: 7, color: "gray", flex: 1 }}>
+                />
+                <View>
+                  <Text style={styles.username}>{post?.user?.name}</Text>
+                  <Text style={styles.timestamp}>{post?.createdAt}</Text>
+                </View>
+              </View>
+              <View style={styles.postContent}>
+                <Text style={styles.postText}>{post?.content}</Text>
+                <View style={styles.likesContainer}>
+                  <Text style={styles.likesCount}>
                     {post?.likes?.length} likes
                   </Text>
                   {post?.likes?.includes(userId) ? (
@@ -227,32 +206,6 @@ const ThreadScreen = () => {
                   )}
                 </View>
               </View>
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  transform: [{ scaleY: -1 }], // Flip each item back to normal
-                }}
-              >
-                <Image
-                  style={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: 20,
-                    resizeMode: "contain",
-                    marginRight: 16,
-                  }}
-                  source={{
-                    uri: "https://cdn-icons-png.flaticon.com/128/149/149071.png",
-                  }}
-                />
-                <View>
-                  <Text style={{ fontSize: 15, fontWeight: "bold" }}>
-                    {post?.user?.name}
-                  </Text>
-                  <Text style={{ fontSize: 15 }}>{post?.createdAt}</Text>
-                </View>
-              </View>
             </View>
           ))}
         </View>
@@ -262,8 +215,43 @@ const ThreadScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  spinnerTextStyle: {
-    color: "#FFF",
+  container: {
+    flex: 1,
+    backgroundColor: "lightblue",
+  },
+  header: {
+    backgroundColor: "whitesmoke",
+    padding: 16,
+    flexDirection: "row",
+    justifyContent: "center",
+  },
+  logo: {
+    width: 50,
+    height: 50,
+    resizeMode: "contain",
+  },
+  addButton: {
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "black",
+    borderRadius: 50,
+    width: 40,
+    height: 40,
+    alignSelf: "flex-end",
+    marginHorizontal: 10,
+  },
+  scrollView: {
+    backgroundColor: "white",
+    flex: 1,
+  },
+  absolute: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    bottom: 0,
+    right: 0,
+    justifyContent: "center",
+    alignItems: "center",
   },
   modalView: {
     backgroundColor: "white",
@@ -282,14 +270,48 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     top: 100,
   },
-  absolute: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    bottom: 0,
-    right: 0,
-    justifyContent: "center",
+  closeButton: {
+    alignSelf: "flex-end",
+  },
+  postsContainer: {
+    flex: 1,
+  },
+  postContainer: {
+    padding: 15,
+    borderColor: "#D0D0D0",
+    borderTopWidth: 1,
+  },
+  postContent: { marginVertical: 20 },
+  postText: {
+    padding: 10,
+  },
+  likesContainer: {
+    alignItems: "flex-end",
+    flexDirection: "row",
+    paddingRight: 20,
+    marginTop: 20,
+  },
+  likesCount: {
+    color: "gray",
+    flex: 1,
+  },
+  postFooter: {
+    flexDirection: "row",
     alignItems: "center",
+  },
+  profileImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    resizeMode: "contain",
+    marginRight: 16,
+  },
+  username: {
+    fontSize: 15,
+    fontWeight: "bold",
+  },
+  timestamp: {
+    fontSize: 15,
   },
 });
 

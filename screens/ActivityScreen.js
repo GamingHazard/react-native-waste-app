@@ -14,18 +14,19 @@ import User from "../components/User";
 import Spinner from "react-native-loading-spinner-overlay"; // Import the Spinner component
 
 const ActivityScreen = () => {
-  const [selectedButton, setSelctedButton] = useState("people");
+  const [selectedButton, setSelectedButton] = useState("people");
   const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(false); // Update the loading state
+  const [loading, setLoading] = useState(false);
   const { userId, setUserId } = useContext(UserType);
+  const [socket, setSocket] = useState(null);
 
   const handleButtonClick = (buttonName) => {
-    setSelctedButton(buttonName);
+    setSelectedButton(buttonName);
   };
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true); // Set loading to true when starting to fetch
+      setLoading(true);
       try {
         const token = await AsyncStorage.getItem("authToken");
         const decodedToken = jwt_decode(token);
@@ -38,10 +39,10 @@ const ActivityScreen = () => {
             endpoint = `/user/${userId}`;
             break;
           case "all":
-            endpoint = "/users"; // Adjust this endpoint as needed
+            endpoint = "/users";
             break;
           case "requests":
-            endpoint = "/requests"; // Adjust this endpoint as needed
+            endpoint = "/requests";
             break;
           default:
             endpoint = `/user/${userId}`;
@@ -55,12 +56,50 @@ const ActivityScreen = () => {
       } catch (error) {
         console.log("error", error);
       } finally {
-        setLoading(false); // Set loading to false after fetching
+        setLoading(false);
       }
     };
 
     fetchData();
   }, [selectedButton]);
+
+  useEffect(() => {
+    // Establish WebSocket connection
+    const ws = new WebSocket("ws://your-server-ip:3000"); // Replace with your WebSocket server URL
+
+    ws.onopen = () => {
+      console.log("WebSocket connection established");
+    };
+
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+
+      switch (data.type) {
+        case "USER_UPDATED":
+          setUsers((prevUsers) =>
+            prevUsers.map((user) =>
+              user._id === data.user._id ? data.user : user
+            )
+          );
+          break;
+        case "NEW_USER":
+          setUsers((prevUsers) => [data.user, ...prevUsers]);
+          break;
+        default:
+          break;
+      }
+    };
+
+    ws.onclose = () => {
+      console.log("WebSocket connection closed");
+    };
+
+    setSocket(ws);
+
+    return () => {
+      ws.close();
+    };
+  }, []);
 
   return (
     <ScrollView style={{ marginTop: 50, flex: 1 }}>
