@@ -5,7 +5,6 @@ import {
   ScrollView,
   Image,
   Modal,
-  KeyboardAvoidingView,
   TouchableOpacity,
 } from "react-native";
 import React, { useEffect, useContext, useState, useCallback } from "react";
@@ -22,7 +21,6 @@ const ThreadScreen = () => {
   const { userId, setUserId } = useContext(UserType);
   const [posts, setPosts] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
-  const [socket, setSocket] = useState(null);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -37,6 +35,11 @@ const ThreadScreen = () => {
 
   useEffect(() => {
     fetchPosts();
+    // Polling: Fetch data every 10 seconds
+    const interval = setInterval(fetchPosts, 10000); // 10 seconds
+
+    // Cleanup interval on component unmount
+    return () => clearInterval(interval);
   }, []);
 
   useFocusEffect(
@@ -44,44 +47,6 @@ const ThreadScreen = () => {
       fetchPosts();
     }, [])
   );
-
-  useEffect(() => {
-    // Establish WebSocket connection
-    const ws = new WebSocket("ws://your-server-ip:3000"); // Replace with your WebSocket server URL
-
-    ws.onopen = () => {
-      console.log("WebSocket connection established");
-    };
-
-    ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-
-      switch (data.type) {
-        case "NEW_POST":
-          setPosts((prevPosts) => [data.post, ...prevPosts]);
-          break;
-        case "UPDATED_POST":
-          setPosts((prevPosts) =>
-            prevPosts.map((post) =>
-              post._id === data.post._id ? data.post : post
-            )
-          );
-          break;
-        default:
-          break;
-      }
-    };
-
-    ws.onclose = () => {
-      console.log("WebSocket connection closed");
-    };
-
-    setSocket(ws);
-
-    return () => {
-      ws.close();
-    };
-  }, []);
 
   const fetchPosts = async () => {
     try {
@@ -104,9 +69,6 @@ const ThreadScreen = () => {
         post._id === updatedPost._id ? updatedPost : post
       );
       setPosts(updatedPosts);
-
-      // Notify WebSocket server of the update (if needed)
-      socket.send(JSON.stringify({ type: "UPDATE_POST", post: updatedPost }));
     } catch (error) {
       console.log("Error liking the post", error);
     }
@@ -122,9 +84,6 @@ const ThreadScreen = () => {
         post._id === updatedPost._id ? updatedPost : post
       );
       setPosts(updatedPosts);
-
-      // Notify WebSocket server of the update (if needed)
-      socket.send(JSON.stringify({ type: "UPDATE_POST", post: updatedPost }));
     } catch (error) {
       console.error("Error unliking post:", error);
     }

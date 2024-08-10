@@ -14,16 +14,13 @@ import { UserType } from "../UserContext";
 import axios from "axios";
 import { AntDesign } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
-import Spinner from "react-native-loading-spinner-overlay";
 import { BlurView } from "expo-blur";
 import CreateBuyPost from "./CreateBuyPost";
 
 const Buy = () => {
   const { userId, setUserId } = useContext(UserType);
   const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
-  const [socket, setSocket] = useState(null);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -38,6 +35,11 @@ const Buy = () => {
 
   useEffect(() => {
     fetchPosts();
+    // Polling: Fetch data every 10 seconds
+    const interval = setInterval(fetchPosts, 10000); // 10 seconds
+
+    // Cleanup interval on component unmount
+    return () => clearInterval(interval);
   }, []);
 
   useFocusEffect(
@@ -46,46 +48,7 @@ const Buy = () => {
     }, [])
   );
 
-  useEffect(() => {
-    // Establish WebSocket connection
-    const ws = new WebSocket("ws://your-server-ip:3000"); // Replace with your WebSocket server URL
-
-    ws.onopen = () => {
-      console.log("WebSocket connection established");
-    };
-
-    ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-
-      switch (data.type) {
-        case "NEW_BUY_POST":
-          setPosts((prevPosts) => [data.post, ...prevPosts]);
-          break;
-        case "UPDATED_BUY_POST":
-          setPosts((prevPosts) =>
-            prevPosts.map((post) =>
-              post._id === data.post._id ? data.post : post
-            )
-          );
-          break;
-        default:
-          break;
-      }
-    };
-
-    ws.onclose = () => {
-      console.log("WebSocket connection closed");
-    };
-
-    setSocket(ws);
-
-    return () => {
-      ws.close();
-    };
-  }, []);
-
   const fetchPosts = async () => {
-    setLoading(true);
     try {
       const response = await axios.get(
         "https://waste-recycle-app-backend.onrender.com/get-BuyPosts"
@@ -93,63 +56,55 @@ const Buy = () => {
       setPosts(response.data);
     } catch (error) {
       console.log("error fetching posts", error);
-    } finally {
-      setLoading(false);
     }
   };
 
-  // Function to be passed to CreatePost for refreshing posts
+  const handleLike = async (postId) => {
+    try {
+      const response = await axios.put(
+        `https://waste-recycle-app-backend.onrender.com/posts/${postId}/${userId}/like`
+      );
+      const updatedPost = response.data;
+      const updatedPosts = posts.map((post) =>
+        post._id === updatedPost._id ? updatedPost : post
+      );
+      setPosts(updatedPosts);
+    } catch (error) {
+      console.log("Error liking the post", error);
+    }
+  };
+
+  const handleDislike = async (postId) => {
+    try {
+      const response = await axios.put(
+        `https://waste-recycle-app-backend.onrender.com/posts/${postId}/${userId}/unlike`
+      );
+      const updatedPost = response.data;
+      const updatedPosts = posts.map((post) =>
+        post._id === updatedPost._id ? updatedPost : post
+      );
+      setPosts(updatedPosts);
+    } catch (error) {
+      console.error("Error unliking post:", error);
+    }
+  };
+
   const refreshPosts = () => {
     fetchPosts();
   };
 
   return (
-    <View>
-      <View
-        style={{
-          backgroundColor: "whitesmoke",
-          padding: 16,
-          flexDirection: "row",
-          justifyContent: "center",
-        }}
-      >
-        <View
-          style={{
-            width: "100%",
-            alignItems: "center",
-          }}
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <TouchableOpacity
+          style={styles.addButton}
+          onPress={() => setModalVisible(true)}
         >
-          <TouchableOpacity
-            onPress={() => setModalVisible(true)}
-            style={{
-              backgroundColor: "black",
-              borderRadius: 50,
-              marginHorizontal: 10,
-              flexDirection: "row",
-              padding: 15,
-              justifyContent: "space-evenly",
-            }}
-          >
-            <Text style={{ color: "white", marginHorizontal: 20 }}>
-              Create Post
-            </Text>
-            <AntDesign name="plus" size={24} color="white" />
-          </TouchableOpacity>
-        </View>
+          <AntDesign name="plus" size={24} color="white" />
+        </TouchableOpacity>
       </View>
 
-      <ScrollView
-        style={{
-          backgroundColor: "white",
-          flex: 2,
-        }}
-      >
-        <Spinner
-          visible={loading}
-          textContent={"Loading..."}
-          textStyle={styles.spinnerTextStyle}
-        />
-
+      <ScrollView style={styles.scrollView}>
         {modalVisible && (
           <BlurView intensity={50} style={styles.absolute}>
             <Modal
@@ -161,7 +116,7 @@ const Buy = () => {
               <View style={styles.modalView}>
                 <AntDesign
                   onPress={() => setModalVisible(false)}
-                  style={{ alignSelf: "flex-end" }}
+                  style={styles.closeButton}
                   name="close"
                   size={24}
                   color="red"
@@ -172,45 +127,23 @@ const Buy = () => {
           </BlurView>
         )}
 
-        <View style={{ width: "100%" }}>
+        <View style={styles.postsContainer}>
           {posts?.map((post) => (
-            <View
-              key={post._id}
-              style={{
-                padding: 15,
-                borderColor: "#D0D0D0",
-                borderTopWidth: 1,
-                gap: 10,
-                padding: 10,
-              }}
-            >
-              <View>
-                <Text style={{ padding: 10 }}>{post?.content}</Text>
-              </View>
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                }}
-              >
+            <View key={post._id} style={styles.postContainer}>
+              <View style={styles.postFooter}>
                 <Image
-                  style={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: 20,
-                    resizeMode: "contain",
-                    marginRight: 16,
-                  }}
+                  style={styles.profileImage}
                   source={{
                     uri: "https://cdn-icons-png.flaticon.com/128/149/149071.png",
                   }}
                 />
                 <View>
-                  <Text style={{ fontSize: 15, fontWeight: "bold" }}>
-                    {post?.user?.name}
-                  </Text>
-                  <Text style={{ fontSize: 15 }}>{post?.createdAt}</Text>
+                  <Text style={styles.username}>{post?.user?.name}</Text>
+                  <Text style={styles.timestamp}>{post?.createdAt}</Text>
                 </View>
+              </View>
+              <View style={styles.postContent}>
+                <Text style={styles.postText}>{post?.content}</Text>
               </View>
             </View>
           ))}
@@ -221,8 +154,43 @@ const Buy = () => {
 };
 
 const styles = StyleSheet.create({
-  spinnerTextStyle: {
-    color: "#FFF",
+  container: {
+    flex: 1,
+    backgroundColor: "white",
+  },
+  header: {
+    backgroundColor: "whitesmoke",
+    padding: 16,
+    flexDirection: "row",
+    justifyContent: "center",
+  },
+  logo: {
+    width: 50,
+    height: 50,
+    resizeMode: "contain",
+  },
+  addButton: {
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "black",
+    borderRadius: 50,
+    width: 40,
+    height: 40,
+    alignSelf: "flex-end",
+    marginHorizontal: 10,
+  },
+  scrollView: {
+    backgroundColor: "white",
+    flex: 1,
+  },
+  absolute: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    bottom: 0,
+    right: 0,
+    justifyContent: "flex-end",
+    alignItems: "center",
   },
   modalView: {
     backgroundColor: "white",
@@ -236,20 +204,55 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
-    width: "100%",
-    height: 500,
+    width: 350,
+    height: 400,
     alignSelf: "center",
-    top: 80,
     marginHorizontal: 10,
   },
-  absolute: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    bottom: 0,
-    right: 0,
-    justifyContent: "flex-end",
+  closeButton: {
+    alignSelf: "flex-end",
+  },
+  postsContainer: {
+    flex: 1,
+  },
+  postContainer: {
+    padding: 10,
+    borderColor: "#D0D0D0",
+    borderTopWidth: 1,
+  },
+  postContent: {
+    marginVertical: 10,
+  },
+  postText: {
+    marginVertical: 10,
+  },
+  likesContainer: {
+    alignItems: "flex-end",
+    flexDirection: "row",
+    paddingRight: 20,
+    marginTop: 20,
+  },
+  likesCount: {
+    color: "gray",
+    flex: 1,
+  },
+  postFooter: {
+    flexDirection: "row",
     alignItems: "center",
+  },
+  profileImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    resizeMode: "contain",
+    marginRight: 16,
+  },
+  username: {
+    fontSize: 15,
+    fontWeight: "bold",
+  },
+  timestamp: {
+    fontSize: 15,
   },
 });
 

@@ -174,7 +174,7 @@ const ActivityScreen = () => {
               {
                 flex: 1,
                 paddingVertical: 10,
-                paddingHorizontal: 20,
+                paddingHorizontal: 10,
                 backgroundColor: "white",
                 borderColor: "#D0D0D0",
                 borderRadius: 6,
@@ -193,7 +193,7 @@ const ActivityScreen = () => {
                   : { color: "black" },
               ]}
             >
-              Reqst
+              Requests
             </Text>
           </TouchableOpacity>
         </View>
