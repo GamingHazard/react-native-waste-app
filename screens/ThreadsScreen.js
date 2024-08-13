@@ -96,12 +96,26 @@ const ThreadScreen = () => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Image
-          style={styles.logo}
-          source={{
-            uri: "https://freelogopng.com/images/all_img/1688663386threads-logo-transparent.png",
+        <Image source={require("../assets/logo.png")} style={styles.logo} />
+        <View
+          style={{
+            flex: 1,
+
+            justifyContent: "center",
+
+            alignItems: "center",
           }}
-        />
+        >
+          <Text
+            style={{
+              color: "#fbfbda",
+              fontSize: 35,
+              fontWeight: "bold",
+            }}
+          >
+            Community
+          </Text>
+        </View>
         <TouchableOpacity
           style={styles.addButton}
           onPress={() => setModalVisible(true)}
@@ -156,7 +170,7 @@ const ThreadScreen = () => {
                   </Text>
                   {post?.likes?.includes(userId) ? (
                     <TouchableOpacity onPress={() => handleDislike(post?._id)}>
-                      <AntDesign name="heart" size={18} color="green" />
+                      <AntDesign name="heart" size={18} color="#4c7c54" />
                     </TouchableOpacity>
                   ) : (
                     <TouchableOpacity onPress={() => handleLike(post?._id)}>
@@ -179,14 +193,15 @@ const styles = StyleSheet.create({
     backgroundColor: "lightblue",
   },
   header: {
-    backgroundColor: "whitesmoke",
+    backgroundColor: "#547c5c",
     padding: 16,
     flexDirection: "row",
     justifyContent: "center",
+    alignItems: "center",
   },
   logo: {
-    width: 50,
-    height: 50,
+    width: 90,
+    height: 90,
     resizeMode: "contain",
   },
   addButton: {
@@ -198,6 +213,7 @@ const styles = StyleSheet.create({
     height: 40,
     alignSelf: "flex-end",
     marginHorizontal: 10,
+    top: -20,
   },
   scrollView: {
     backgroundColor: "white",

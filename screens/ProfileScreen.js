@@ -46,7 +46,7 @@ const ProfileScreen = () => {
         style={{
           width: "100%",
           height: 550,
-          backgroundColor: "green",
+          backgroundColor: "#4c7c54",
           alignItems: "center",
 
           borderBottomRightRadius: 30,
@@ -77,13 +77,13 @@ const ProfileScreen = () => {
           style={{
             fontSize: 25,
             fontWeight: "bold",
-            color: "white",
+            color: "#fbfbda",
             marginVertical: 10,
           }}
         >
           {user?.name}
         </Text>
-        <Text style={{ color: "white", fontSize: 18, marginTop: 10 }}>
+        <Text style={{ color: "#fbfbda", fontSize: 18, marginTop: 10 }}>
           followers : {user?.followers?.length}
         </Text>
 

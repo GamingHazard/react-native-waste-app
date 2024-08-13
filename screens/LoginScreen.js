@@ -64,17 +64,24 @@ const LoginScreen = () => {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#547c5c" }}>
       <View style={{ marginTop: 50 }}>
-        <Image
+        {/* <Image
           style={{
             width: 150,
             height: 100,
             resizeMode: "contain",
             alignSelf: "center",
           }}
-          source={{
-            uri: "https://freelogopng.com/images/all_img/1688663386threads-logo-transparent.png",
+          src={require("../assets/logo.png")}
+        /> */}
+        <Image
+          source={require("../assets/logo.png")}
+          style={{
+            width: 150,
+            height: 100,
+            resizeMode: "contain",
+            alignSelf: "center",
           }}
         />
       </View>
@@ -87,7 +94,14 @@ const LoginScreen = () => {
             padding: 20,
           }}
         >
-          <Text style={{ fontSize: 17, fontWeight: "bold", marginTop: 25 }}>
+          <Text
+            style={{
+              fontSize: 17,
+              fontWeight: "bold",
+              marginTop: 25,
+              color: "#fbfbda",
+            }}
+          >
             Login to Your Account
           </Text>
         </View>
@@ -103,20 +117,21 @@ const LoginScreen = () => {
               paddingVertical: 5,
               borderRadius: 5,
               marginHorizontal: 10,
+              backgroundColor: "white",
             }}
           >
             <MaterialIcons
               style={{ marginLeft: 8 }}
               name="email"
               size={24}
-              color="gray"
+              color="#4c7c54"
             />
             <TextInput
               value={email}
               onChangeText={(text) => setEmail(text)}
-              placeholderTextColor={"gray"}
+              placeholderTextColor={"black"}
               style={{
-                color: "gray",
+                color: "#4c7c54",
                 marginVertical: 10,
                 width: 300,
                 fontSize: 16,
@@ -136,21 +151,22 @@ const LoginScreen = () => {
                 paddingVertical: 5,
                 borderRadius: 5,
                 marginHorizontal: 10,
+                backgroundColor: "white",
               }}
             >
               <AntDesign
                 style={{ marginLeft: 8 }}
                 name="lock"
                 size={24}
-                color="gray"
+                color="#4c7c54"
               />
               <TextInput
                 secureTextEntry={true}
                 value={password}
                 onChangeText={(text) => setPassword(text)}
-                placeholderTextColor={"gray"}
+                placeholderTextColor={"black"}
                 style={{
-                  color: "gray",
+                  color: "#4c7c54",
                   marginVertical: 10,
                   width: 300,
                   fontSize: 16,
@@ -168,12 +184,7 @@ const LoginScreen = () => {
               marginTop: 12,
               marginHorizontal: 10,
             }}
-          >
-            <Text>Keep me logged in</Text>
-            <Text style={{ fontWeight: "500", color: "#007FFF" }}>
-              Forgot Password
-            </Text>
-          </View>
+          ></View>
         </View>
 
         <View style={{ marginTop: 45 }} />
@@ -182,7 +193,7 @@ const LoginScreen = () => {
           onPress={handleLogin}
           style={{
             width: 200,
-            backgroundColor: "black",
+            backgroundColor: "#fbfbda",
             padding: 15,
 
             marginLeft: "auto",
@@ -194,14 +205,14 @@ const LoginScreen = () => {
           }}
         >
           {loading ? (
-            <ActivityIndicator size="small" color="white" />
+            <ActivityIndicator size="small" color="#4c7c54" />
           ) : (
             <Text
               style={{
                 textAlign: "center",
                 fontWeight: "bold",
                 fontSize: 16,
-                color: "white",
+                color: "#4c7c54",
               }}
             >
               Login
@@ -213,7 +224,7 @@ const LoginScreen = () => {
           onPress={() => navigation.navigate("Register")}
           style={{ marginTop: 10 }}
         >
-          <Text style={{ textAlign: "center", fontSize: 16 }}>
+          <Text style={{ textAlign: "center", fontSize: 16, color: "#fbfbda" }}>
             Don't have an account? Sign up
           </Text>
         </Pressable>

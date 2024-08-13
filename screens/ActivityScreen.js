@@ -33,14 +33,20 @@ export default class ActivityScreen extends Component {
                 padding: 5,
                 height: 100,
                 width: "100%",
-                backgroundColor: "lightgreen",
+                backgroundColor: "#4c7c54",
                 elevation: 8,
               }}
             >
-              <Text>Name :Kampala Capital City Authority(KCCA)</Text>
-              <Text>Location : Kampala, Uganda </Text>
-              <Text>Founded : 2011</Text>
-              <Text>Contact : 0800 299 000 (toll free)</Text>
+              <Text style={{ color: "white" }}>
+                Name :Kampala Capital City Authority(KCCA)
+              </Text>
+              <Text style={{ color: "white" }}>
+                Location : Kampala, Uganda{" "}
+              </Text>
+              <Text style={{ color: "white" }}>Founded : 2011</Text>
+              <Text style={{ color: "white" }}>
+                Contact : 0800 299 000 (toll free)
+              </Text>
             </View>
           </View>
           <View style={{ padding: 10 }}>
@@ -78,14 +84,20 @@ export default class ActivityScreen extends Component {
                 padding: 5,
                 height: 100,
                 width: "100%",
-                backgroundColor: "lightgreen",
+                backgroundColor: "#4c7c54",
                 elevation: 8,
               }}
             >
-              <Text>Name :Asante Waste Management </Text>
-              <Text>Location :Luzira Industrial, Kampala – Uganda.</Text>
-              <Text>Founded : 2021</Text>
-              <Text>Contact : (+256) 414 691 868 / (+256) 751 272 683</Text>
+              <Text style={{ color: "white" }}>
+                Name :Asante Waste Management{" "}
+              </Text>
+              <Text style={{ color: "white" }}>
+                Location :Luzira Industrial, Kampala – Uganda.
+              </Text>
+              <Text style={{ color: "white" }}>Founded : 2021</Text>
+              <Text style={{ color: "white" }}>
+                Contact : (+256) 414 691 868 / 0751 272 683
+              </Text>
             </View>
           </View>
           <View style={{ padding: 10 }}>
@@ -125,13 +137,15 @@ export default class ActivityScreen extends Component {
                 padding: 5,
                 height: 100,
                 width: "100%",
-                backgroundColor: "lightgreen",
+                backgroundColor: "#4c7c54",
                 elevation: 8,
               }}
             >
-              <Text>Name : Bins Kampala</Text>
-              <Text>Location : Kampala, Uganda </Text>
-              <Text>Contact : 0772 594470</Text>
+              <Text style={{ color: "white" }}>Name : Bins Kampala</Text>
+              <Text style={{ color: "white" }}>
+                Location : Kampala, Uganda{" "}
+              </Text>
+              <Text style={{ color: "white" }}>Contact : 0772 594470</Text>
             </View>
           </View>
           <View style={{ padding: 10 }}>
@@ -167,13 +181,19 @@ export default class ActivityScreen extends Component {
                 padding: 5,
                 height: 100,
                 width: "100%",
-                backgroundColor: "lightgreen",
+                backgroundColor: "#4c7c54",
                 elevation: 8,
               }}
             >
-              <Text>Name : Armstrong Global Solutions Ltd</Text>
-              <Text>Location : kibuli kakungulu,Kampala,Uganda </Text>
-              <Text>Contact :(+91) 9999-241-423</Text>
+              <Text style={{ color: "white" }}>
+                Name : Armstrong Global Solutions Ltd
+              </Text>
+              <Text style={{ color: "white" }}>
+                Location : kibuli kakungulu,Kampala,Uganda{" "}
+              </Text>
+              <Text style={{ color: "white" }}>
+                Contact :(+91) 9999-241-423
+              </Text>
             </View>
           </View>
           <View style={{ padding: 10 }}>
@@ -210,13 +230,19 @@ export default class ActivityScreen extends Component {
                 padding: 5,
                 height: 100,
                 width: "100%",
-                backgroundColor: "lightgreen",
+                backgroundColor: "#4c7c54",
                 elevation: 8,
               }}
             >
-              <Text>Name :SWIFT WASTE MASTERS LIMITED</Text>
-              <Text>Location : Kampala, Uganda </Text>
-              <Text>Contact : + 256 414 530 999/ 0758 892 937</Text>
+              <Text style={{ color: "white" }}>
+                Name :SWIFT WASTE MASTERS LIMITED
+              </Text>
+              <Text style={{ color: "white" }}>
+                Location : Kampala, Uganda{" "}
+              </Text>
+              <Text style={{ color: "white" }}>
+                Contact : + 256 414 530 999/ 0758 892 937
+              </Text>
             </View>
           </View>
           <View style={{ padding: 10 }}>
@@ -253,13 +279,17 @@ export default class ActivityScreen extends Component {
                 padding: 5,
                 height: 100,
                 width: "100%",
-                backgroundColor: "lightgreen",
+                backgroundColor: "#4c7c54",
                 elevation: 8,
               }}
             >
-              <Text>Name :Best of Waste </Text>
-              <Text>Location : Kampala, Uganda </Text>
-              <Text>Contact : +256703827850 / +256772517674</Text>
+              <Text style={{ color: "white" }}>Name :Best of Waste </Text>
+              <Text style={{ color: "white" }}>
+                Location : Kampala, Uganda{" "}
+              </Text>
+              <Text style={{ color: "white" }}>
+                Contact : +256703827850 / +256772517674
+              </Text>
             </View>
           </View>
           <View style={{ padding: 10 }}>
@@ -296,13 +326,19 @@ export default class ActivityScreen extends Component {
                 padding: 5,
                 height: 100,
                 width: "100%",
-                backgroundColor: "lightgreen",
+                backgroundColor: "#4c7c54",
                 elevation: 8,
               }}
             >
-              <Text>Name :Nabugabo Updeal Joint Venture</Text>
-              <Text>Location : Kampala, Uganda </Text>
-              <Text>Contact : +256 704 094068 | +256 700 983346</Text>
+              <Text style={{ color: "white" }}>
+                Name :Nabugabo Updeal Joint Venture
+              </Text>
+              <Text style={{ color: "white" }}>
+                Location : Kampala, Uganda{" "}
+              </Text>
+              <Text style={{ color: "white" }}>
+                Contact : +256 704 094068 | +256 700 983346
+              </Text>
             </View>
           </View>
           <View style={{ padding: 10 }}>
@@ -338,13 +374,15 @@ export default class ActivityScreen extends Component {
                 padding: 5,
                 height: 100,
                 width: "100%",
-                backgroundColor: "lightgreen",
+                backgroundColor: "#4c7c54",
                 elevation: 8,
               }}
             >
-              <Text>Name : De Waste (U) Ltd</Text>
-              <Text>Location : Kampala, Uganda </Text>
-              <Text>Contact : 0755 316666</Text>
+              <Text style={{ color: "white" }}>Name : De Waste (U) Ltd</Text>
+              <Text style={{ color: "white" }}>
+                Location : Kampala, Uganda{" "}
+              </Text>
+              <Text style={{ color: "white" }}>Contact : 0755 316666</Text>
             </View>
           </View>
           <View style={{ padding: 10 }}>
@@ -380,13 +418,15 @@ export default class ActivityScreen extends Component {
                 padding: 5,
                 height: 100,
                 width: "100%",
-                backgroundColor: "lightgreen",
+                backgroundColor: "#4c7c54",
                 elevation: 8,
               }}
             >
-              <Text>Name : YO WASTE</Text>
-              <Text>Location : Lumumba Ave Kampala, Uganda </Text>
-              <Text>Contact : 039-324-6589 </Text>
+              <Text style={{ color: "white" }}>Name : YO WASTE</Text>
+              <Text style={{ color: "white" }}>
+                Location : Lumumba Ave Kampala, Uganda{" "}
+              </Text>
+              <Text style={{ color: "white" }}>Contact : 039-324-6589 </Text>
             </View>
           </View>
           <View style={{ padding: 10 }}>
@@ -423,13 +463,17 @@ export default class ActivityScreen extends Component {
                 padding: 5,
                 height: 100,
                 width: "100%",
-                backgroundColor: "lightgreen",
+                backgroundColor: "#4c7c54",
                 elevation: 8,
               }}
             >
-              <Text>Name : Aquila Recycling Plant</Text>
-              <Text>Location : Mpererwe,Kampala,Uganda </Text>
-              <Text>Contact : 0759 949494 </Text>
+              <Text style={{ color: "white" }}>
+                Name : Aquila Recycling Plant
+              </Text>
+              <Text style={{ color: "white" }}>
+                Location : Mpererwe,Kampala,Uganda{" "}
+              </Text>
+              <Text style={{ color: "white" }}>Contact : 0759 949494 </Text>
             </View>
           </View>
           <View style={{ padding: 10 }}>

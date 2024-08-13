@@ -28,7 +28,7 @@ const StackNavigator = () => {
             headerShown: false,
             tabBarIcon: ({ focused }) =>
               focused ? (
-                <Entypo name="home" size={24} color="green" />
+                <Entypo name="home" size={24} color="#4c7c54" />
               ) : (
                 <AntDesign name="home" size={24} color="grey" />
               ),
@@ -44,7 +44,7 @@ const StackNavigator = () => {
             headerShown: false,
             tabBarIcon: ({ focused }) =>
               focused ? (
-                <Ionicons name="people" size={24} color="green" />
+                <Ionicons name="people" size={24} color="#4c7c54" />
               ) : (
                 <Ionicons name="people-outline" size={24} color="grey" />
               ),
@@ -63,7 +63,7 @@ const StackNavigator = () => {
                 <MaterialCommunityIcons
                   name="dump-truck"
                   size={24}
-                  color="green"
+                  color="#4c7c54"
                 />
               ) : (
                 <MaterialCommunityIcons
@@ -84,7 +84,7 @@ const StackNavigator = () => {
             headerShown: false,
             tabBarIcon: ({ focused }) =>
               focused ? (
-                <Ionicons name="person" size={24} color="green" />
+                <Ionicons name="person" size={24} color="#4c7c54" />
               ) : (
                 <Ionicons name="person-outline" size={24} color="grey" />
               ),

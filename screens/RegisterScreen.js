@@ -56,17 +56,15 @@ const RegisterScreen = () => {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#4c7c54" }}>
       <View style={{ marginTop: 50 }}>
         <Image
+          source={require("../assets/logo.png")}
           style={{
             width: 150,
             height: 100,
             resizeMode: "contain",
             alignSelf: "center",
-          }}
-          source={{
-            uri: "https://freelogopng.com/images/all_img/1688663386threads-logo-transparent.png",
           }}
         />
       </View>
@@ -79,8 +77,15 @@ const RegisterScreen = () => {
             padding: 10,
           }}
         >
-          <Text style={{ fontSize: 17, fontWeight: "bold", marginTop: 25 }}>
-            Register to Your Account
+          <Text
+            style={{
+              fontSize: 17,
+              fontWeight: "bold",
+              marginTop: 25,
+              color: "#fbfbda",
+            }}
+          >
+            Register Account
           </Text>
         </View>
 
@@ -95,20 +100,21 @@ const RegisterScreen = () => {
               paddingVertical: 5,
               borderRadius: 5,
               marginHorizontal: 16,
+              backgroundColor: "white",
             }}
           >
             <Ionicons
               style={{ marginLeft: 8 }}
               name="person"
               size={24}
-              color="gray"
+              color="#4c7c54"
             />
             <TextInput
               value={name}
               onChangeText={(text) => setName(text)}
-              placeholderTextColor={"gray"}
+              placeholderTextColor={"#4c7c54"}
               style={{
-                color: "gray",
+                color: "#4c7c54",
                 marginVertical: 10,
                 width: 300,
                 fontSize: 16,
@@ -129,20 +135,21 @@ const RegisterScreen = () => {
               paddingVertical: 5,
               borderRadius: 5,
               marginHorizontal: 16,
+              backgroundColor: "white",
             }}
           >
             <MaterialIcons
               style={{ marginLeft: 8 }}
               name="email"
               size={24}
-              color="gray"
+              color="#4c7c54"
             />
             <TextInput
               value={email}
               onChangeText={(text) => setEmail(text)}
-              placeholderTextColor={"gray"}
+              placeholderTextColor={"#4c7c54"}
               style={{
-                color: "gray",
+                color: "#4c7c54",
                 marginVertical: 10,
                 width: 300,
                 fontSize: 16,
@@ -162,21 +169,22 @@ const RegisterScreen = () => {
                 paddingVertical: 5,
                 borderRadius: 5,
                 marginHorizontal: 16,
+                backgroundColor: "white",
               }}
             >
               <AntDesign
                 style={{ marginLeft: 8 }}
                 name="lock"
                 size={24}
-                color="gray"
+                color="#4c7c54"
               />
               <TextInput
                 secureTextEntry={true}
                 value={password}
                 onChangeText={(text) => setPassword(text)}
-                placeholderTextColor={"gray"}
+                placeholderTextColor={"#4c7c54"}
                 style={{
-                  color: "gray",
+                  color: "#4c7c54",
                   marginVertical: 10,
                   width: 300,
                   fontSize: 16,
@@ -193,7 +201,7 @@ const RegisterScreen = () => {
           onPress={handleRegister}
           style={{
             width: 200,
-            backgroundColor: "black",
+            backgroundColor: "#fbfbda",
             padding: 15,
             marginLeft: "auto",
             marginRight: "auto",
@@ -203,14 +211,14 @@ const RegisterScreen = () => {
           }}
         >
           {loading ? (
-            <ActivityIndicator color="white" />
+            <ActivityIndicator color="#4c7c54" />
           ) : (
             <Text
               style={{
                 textAlign: "center",
                 fontWeight: "bold",
                 fontSize: 16,
-                color: "white",
+                color: "#4c7c54",
               }}
             >
               Register
@@ -222,7 +230,7 @@ const RegisterScreen = () => {
           onPress={() => navigation.goBack()}
           style={{ marginTop: 10 }}
         >
-          <Text style={{ textAlign: "center", fontSize: 16 }}>
+          <Text style={{ textAlign: "center", fontSize: 16, color: "#fbfbda" }}>
             Already have an account? Login
           </Text>
         </Pressable>

@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
   navBar: {
     flexDirection: "row",
     width: "100%",
-    backgroundColor: "green",
+    backgroundColor: "#4c7c54",
     justifyContent: "space-around",
     paddingVertical: 10,
   },
@@ -72,13 +72,13 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   navText: {
-    color: "white",
+    color: "#fbfbda",
     fontWeight: "bold",
     fontSize: 20,
   },
   activeButton: {
     borderBottomWidth: 2,
-    borderBottomColor: "white",
+    borderBottomColor: "#fbfbda",
   },
   componentContainer: {
     flex: 1,
