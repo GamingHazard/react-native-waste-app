@@ -9,6 +9,7 @@ import { TextInput } from "react-native";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { TouchableOpacity } from "react-native";
 import Entypo from "@expo/vector-icons/Entypo";
+import AntDesign from "@expo/vector-icons/AntDesign";
 
 const ProfileScreen = () => {
   const [user, setUser] = useState("");
@@ -168,7 +169,8 @@ const ProfileScreen = () => {
             <Text style={{ fontWeight: "bold", fontSize: 18, marginRight: 10 }}>
               Help Service
             </Text>
-            <Entypo name="help-with-circle" size={24} color="black" />
+            {/* <Entypo name="help-with-circle" size={24} color="black" /> */}
+            <AntDesign name="customerservice" size={24} color="black" />
           </View>
           <View
             style={{

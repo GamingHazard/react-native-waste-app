@@ -11,6 +11,7 @@ import ThreadsScreen from "./screens/ThreadsScreen";
 import ActivityScreen from "./screens/ActivityScreen";
 import ProfileScreen from "./screens/ProfileScreen";
 import CommunityPage from "./screens/ThreadsScreen";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
 const StackNavigator = () => {
   const Stack = createNativeStackNavigator();
@@ -54,14 +55,22 @@ const StackNavigator = () => {
           name="Activity"
           component={ActivityScreen}
           options={{
-            tabBarLabel: "Activity",
+            tabBarLabel: "Services",
             tabBarLabelStyle: { fontSize: 12, padding: 5, color: "grey" },
             headerShown: false,
             tabBarIcon: ({ focused }) =>
               focused ? (
-                <AntDesign name="heart" size={24} color="green" />
+                <MaterialCommunityIcons
+                  name="dump-truck"
+                  size={24}
+                  color="green"
+                />
               ) : (
-                <AntDesign name="hearto" size={24} color="grey" />
+                <MaterialCommunityIcons
+                  name="dump-truck"
+                  size={24}
+                  color="grey"
+                />
               ),
           }}
         />
