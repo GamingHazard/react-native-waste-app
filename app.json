@@ -4,7 +4,7 @@
     "slug": "threads-app",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/Icon2.png",
+    "icon": "./assets/icon3.png",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/logo.png",
@@ -17,8 +17,8 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/foreground.png",
+        "backgroundColor": "#4c7c54"
       },
       "package": "com.gost150.threadsapp"
     },

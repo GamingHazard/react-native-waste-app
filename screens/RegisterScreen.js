@@ -44,7 +44,7 @@ const RegisterScreen = () => {
       setEmail("");
       setPassword("");
       setLoading(false);
-      navigation.replace("Main");
+      navigation.replace("Login");
     } catch (error) {
       setLoading(false);
       Alert.alert(
