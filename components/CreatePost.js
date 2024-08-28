@@ -36,10 +36,7 @@ const CreatePost = ({ refreshPosts }) => {
 
   const handlePostSubmit = () => {
     if (!content.trim()) {
-      Alert.alert(
-        "Validation Error",
-        "Please enter content before submitting."
-      );
+      Alert.alert("Error", "Please enter content before submitting.");
       return;
     }
 
@@ -82,8 +79,8 @@ const CreatePost = ({ refreshPosts }) => {
         <TextInput
           value={content}
           onChangeText={(text) => setContent(text)}
-          placeholderTextColor={"black"}
-          placeholder="Type your message..."
+          placeholderTextColor={"lightgrey"}
+          placeholder="Enter you Items  with price for each..."
           multiline
           style={styles.textInput}
         />
@@ -91,7 +88,7 @@ const CreatePost = ({ refreshPosts }) => {
 
       <View style={styles.buttonContainer}>
         {loading ? (
-          <ActivityIndicator size="small" color="#0000ff" />
+          <ActivityIndicator size="small" color="#fbfbda" />
         ) : (
           <Pressable onPress={handlePostSubmit} style={styles.button}>
             <Text style={styles.buttonText}>Share Post</Text>
@@ -106,7 +103,7 @@ const styles = StyleSheet.create({
   container: {
     padding: 10,
     flex: 1,
-    backgroundColor: "white",
+    // backgroundColor: "lightblue",
   },
   header: {
     flexDirection: "row",
@@ -122,21 +119,25 @@ const styles = StyleSheet.create({
   },
   username: {
     fontWeight: "bold",
+    color: "white",
   },
   inputContainer: {
-    marginLeft: 10,
+    marginVertical: 10,
     width: "100%",
-    height: 120,
-  },
-  textInput: {
+    height: 200,
+    // backgroundColor: "lightblue",
     borderWidth: 1,
     borderColor: "#D0D0D0",
     borderRadius: 5,
+    marginVertical: 20,
+    backgroundColor: "#fbfbda",
+  },
+  textInput: {
     padding: 10,
     fontSize: 16,
+    color: "black",
   },
   buttonContainer: {
-    marginTop: 20,
     alignItems: "center",
   },
   button: {

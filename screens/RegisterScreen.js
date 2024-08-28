@@ -20,13 +20,30 @@ const RegisterScreen = () => {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
   const navigation = useNavigation();
 
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
   const handleRegister = async () => {
+    // Validate fields
+    if (!name || !email || !password) {
+      Alert.alert("Validation Error", "Please fill in all fields.");
+      return;
+    }
+
+    if (!validateEmail(email)) {
+      Alert.alert("Validation Error", "Please enter a valid email address.");
+      return;
+    }
+
     setLoading(true);
     const user = {
       name: name,
-      email: email,
+      email: email.toLowerCase(), // Ensure email is lowercase
       password: password,
     };
 
@@ -113,6 +130,7 @@ const RegisterScreen = () => {
               value={name}
               onChangeText={(text) => setName(text)}
               placeholderTextColor={"#4c7c54"}
+              autoCapitalize="none"
               style={{
                 color: "#4c7c54",
                 marginVertical: 10,
@@ -146,7 +164,7 @@ const RegisterScreen = () => {
             />
             <TextInput
               value={email}
-              onChangeText={(text) => setEmail(text)}
+              onChangeText={(text) => setEmail(text)} // Update state without validation
               placeholderTextColor={"#4c7c54"}
               style={{
                 color: "#4c7c54",
@@ -155,6 +173,7 @@ const RegisterScreen = () => {
                 fontSize: 16,
               }}
               placeholder="Enter your Email"
+              keyboardType="email-address" // Use email address keyboard type
             />
           </View>
 
@@ -163,7 +182,6 @@ const RegisterScreen = () => {
               style={{
                 flexDirection: "row",
                 alignItems: "center",
-                gap: 5,
                 borderColor: "#D0D0D0",
                 borderWidth: 1,
                 paddingVertical: 5,
@@ -179,7 +197,7 @@ const RegisterScreen = () => {
                 color="#4c7c54"
               />
               <TextInput
-                secureTextEntry={true}
+                secureTextEntry={!showPassword} // Toggle password visibility
                 value={password}
                 onChangeText={(text) => setPassword(text)}
                 placeholderTextColor={"#4c7c54"}
@@ -191,6 +209,20 @@ const RegisterScreen = () => {
                 }}
                 placeholder="Enter your Password"
               />
+              <Pressable
+                onPress={() => setShowPassword(!showPassword)} // Toggle showPassword state
+                style={{
+                  position: "absolute",
+                  right: 8,
+                  padding: 8,
+                }}
+              >
+                <Ionicons
+                  name={showPassword ? "eye" : "eye-off"}
+                  size={24}
+                  color="#4c7c54"
+                />
+              </Pressable>
             </View>
           </View>
         </View>

@@ -11,7 +11,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import React, { useState, useEffect } from "react";
-import { MaterialIcons, AntDesign } from "@expo/vector-icons";
+import { MaterialIcons, AntDesign, Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -20,13 +20,13 @@ const LoginScreen = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigation = useNavigation();
 
   useEffect(() => {
     const checkLoginStatus = async () => {
       try {
         const token = await AsyncStorage.getItem("authToken");
-
         if (token) {
           setTimeout(() => {
             navigation.replace("Main");
@@ -40,25 +40,40 @@ const LoginScreen = () => {
     checkLoginStatus();
   }, []);
 
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
   const handleLogin = () => {
-    setLoading(true); // Set loading to true when the login starts
+    if (!email || !password) {
+      Alert.alert("Validation Error", "Please fill in all fields.");
+      return;
+    }
+
+    if (!validateEmail(email)) {
+      Alert.alert("Validation Error", "Please enter a valid email address.");
+      return;
+    }
+
+    setLoading(true);
     const user = {
-      email: email,
+      email: email.toLowerCase(),
       password: password,
     };
 
     axios
       .post("https://waste-recycle-app-backend.onrender.com/login", user)
       .then((response) => {
-        setLoading(false); // Set loading to false when the login is successful
+        setLoading(false);
         console.log(response);
         const token = response.data.token;
         AsyncStorage.setItem("authToken", token);
         navigation.navigate("Main");
       })
       .catch((error) => {
-        setLoading(false); // Set loading to false when there is an error
-        Alert.alert("Login error");
+        setLoading(false);
+        Alert.alert("Login error", "An error occurred while logging in.");
         console.log("error ", error);
       });
   };
@@ -66,15 +81,6 @@ const LoginScreen = () => {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#547c5c" }}>
       <View style={{ marginTop: 50 }}>
-        {/* <Image
-          style={{
-            width: 150,
-            height: 100,
-            resizeMode: "contain",
-            alignSelf: "center",
-          }}
-          src={require("../assets/logo.png")}
-        /> */}
         <Image
           source={require("../assets/logo.png")}
           style={{
@@ -86,7 +92,7 @@ const LoginScreen = () => {
         />
       </View>
 
-      <KeyboardAvoidingView>
+      <KeyboardAvoidingView behavior="padding">
         <View
           style={{
             alignItems: "center",
@@ -111,7 +117,6 @@ const LoginScreen = () => {
             style={{
               flexDirection: "row",
               alignItems: "center",
-              gap: 5,
               borderColor: "#D0D0D0",
               borderWidth: 1,
               paddingVertical: 5,
@@ -137,6 +142,8 @@ const LoginScreen = () => {
                 fontSize: 16,
               }}
               placeholder="Enter your Email"
+              keyboardType="email-address" // Set email keyboard type
+              autoCapitalize="none"
             />
           </View>
 
@@ -145,7 +152,6 @@ const LoginScreen = () => {
               style={{
                 flexDirection: "row",
                 alignItems: "center",
-                gap: 5,
                 borderColor: "#D0D0D0",
                 borderWidth: 1,
                 paddingVertical: 5,
@@ -161,7 +167,7 @@ const LoginScreen = () => {
                 color="#4c7c54"
               />
               <TextInput
-                secureTextEntry={true}
+                secureTextEntry={!showPassword}
                 value={password}
                 onChangeText={(text) => setPassword(text)}
                 placeholderTextColor={"black"}
@@ -172,7 +178,17 @@ const LoginScreen = () => {
                   fontSize: 16,
                 }}
                 placeholder="Enter your Password"
+                autoCorrect={false}
+                autoCapitalize="none"
               />
+              <Pressable onPress={() => setShowPassword(!showPassword)}>
+                <Ionicons
+                  name={showPassword ? "eye-off" : "eye"}
+                  size={24}
+                  color="#4c7c54"
+                  style={{ marginRight: 8 }}
+                />
+              </Pressable>
             </View>
           </View>
 
@@ -195,7 +211,6 @@ const LoginScreen = () => {
             width: 200,
             backgroundColor: "#fbfbda",
             padding: 15,
-
             marginLeft: "auto",
             marginRight: "auto",
             borderRadius: 6,

@@ -6,7 +6,14 @@ import { Text, StyleSheet, View } from "react-native";
 export default class ActivityScreen extends Component {
   render() {
     return (
-      <ScrollView style={{ flex: 1, padding: 10, paddingBottom: 16 }}>
+      <ScrollView
+        style={{
+          flex: 1,
+          padding: 16,
+          paddingBottom: 16,
+          backgroundColor: "whitesmoke",
+        }}
+      >
         <Text style={{ alignSelf: "center", fontWeight: "bold", fontSize: 26 }}>
           Waste Management Services
         </Text>
@@ -18,6 +25,7 @@ export default class ActivityScreen extends Component {
             padding: 10,
             elevation: 10,
             marginVertical: 16,
+            borderRadius: 10,
             backgroundColor: "white",
           }}
         >
@@ -69,6 +77,7 @@ export default class ActivityScreen extends Component {
             padding: 10,
             elevation: 10,
             marginVertical: 16,
+            borderRadius: 10,
             backgroundColor: "white",
           }}
         >
@@ -122,6 +131,7 @@ export default class ActivityScreen extends Component {
             padding: 10,
             elevation: 10,
             marginVertical: 16,
+            borderRadius: 10,
             backgroundColor: "white",
           }}
         >
@@ -166,6 +176,7 @@ export default class ActivityScreen extends Component {
             padding: 10,
             elevation: 10,
             marginVertical: 16,
+            borderRadius: 10,
             backgroundColor: "white",
           }}
         >
@@ -215,6 +226,7 @@ export default class ActivityScreen extends Component {
             padding: 10,
             elevation: 10,
             marginVertical: 16,
+            borderRadius: 10,
             backgroundColor: "white",
           }}
         >
@@ -264,6 +276,7 @@ export default class ActivityScreen extends Component {
             padding: 10,
             elevation: 10,
             marginVertical: 16,
+            borderRadius: 10,
             backgroundColor: "white",
           }}
         >
@@ -311,6 +324,7 @@ export default class ActivityScreen extends Component {
             padding: 10,
             elevation: 10,
             marginVertical: 16,
+            borderRadius: 10,
             backgroundColor: "white",
           }}
         >
@@ -337,7 +351,7 @@ export default class ActivityScreen extends Component {
                 Location : Kampala, Uganda{" "}
               </Text>
               <Text style={{ color: "white" }}>
-                Contact : +256 704 094068 | +256 700 983346
+                Contact : +256 704 094068 | 0700 983346
               </Text>
             </View>
           </View>
@@ -359,6 +373,7 @@ export default class ActivityScreen extends Component {
             padding: 10,
             elevation: 10,
             marginVertical: 16,
+            borderRadius: 10,
             backgroundColor: "white",
           }}
         >
@@ -403,6 +418,7 @@ export default class ActivityScreen extends Component {
             padding: 10,
             elevation: 10,
             marginVertical: 16,
+            borderRadius: 10,
             backgroundColor: "white",
           }}
         >
@@ -448,6 +464,7 @@ export default class ActivityScreen extends Component {
             padding: 10,
             elevation: 10,
             marginVertical: 16,
+            borderRadius: 10,
             backgroundColor: "white",
           }}
         >
@@ -471,7 +488,7 @@ export default class ActivityScreen extends Component {
                 Name : Aquila Recycling Plant
               </Text>
               <Text style={{ color: "white" }}>
-                Location : Mpererwe,Kampala,Uganda{" "}
+                Location : Mpererwe, Kampala,Uganda{" "}
               </Text>
               <Text style={{ color: "white" }}>Contact : 0759 949494 </Text>
             </View>

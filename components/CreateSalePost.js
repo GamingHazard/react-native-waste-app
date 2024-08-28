@@ -88,7 +88,7 @@ const CreateSalePost = ({ refreshPosts }) => {
 
       <View style={styles.buttonContainer}>
         {loading ? (
-          <ActivityIndicator size="small" color="#0000ff" />
+          <ActivityIndicator size="small" color="#fbfbda" />
         ) : (
           <Pressable onPress={handlePostSubmit} style={styles.button}>
             <Text style={styles.buttonText}>Share Post</Text>
@@ -119,6 +119,7 @@ const styles = StyleSheet.create({
   },
   username: {
     fontWeight: "bold",
+    color: "white",
   },
   inputContainer: {
     marginVertical: 10,
@@ -129,10 +130,12 @@ const styles = StyleSheet.create({
     borderColor: "#D0D0D0",
     borderRadius: 5,
     marginVertical: 20,
+    backgroundColor: "#fbfbda",
   },
   textInput: {
     padding: 10,
     fontSize: 16,
+    color: "black",
   },
   buttonContainer: {
     alignItems: "center",

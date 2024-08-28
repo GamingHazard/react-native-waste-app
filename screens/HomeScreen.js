@@ -1,25 +1,43 @@
-import { StyleSheet, Text, View, TouchableOpacity, Image } from "react-native";
-import React, { useEffect, useContext, useState, useCallback } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import jwt_decode from "jwt-decode";
-import { UserType } from "../UserContext";
-import axios from "axios";
-import { AntDesign } from "@expo/vector-icons";
-import { FontAwesome } from "@expo/vector-icons";
-import { Ionicons } from "@expo/vector-icons";
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  ActivityIndicator,
+} from "react-native";
+import React, { useState, useEffect, useCallback } from "react";
 import { useFocusEffect } from "@react-navigation/native";
-import Spinner from "react-native-loading-spinner-overlay"; // Import Spinner
 import Buy from "../components/Buy";
 import Sale from "../components/Sale";
 
 const HomeScreen = () => {
   const [activeComponent, setActiveComponent] = useState("one");
+  const [loading, setLoading] = useState(false);
+
+  // Function to simulate data loading
+  const fetchData = async () => {
+    setLoading(true);
+    // Simulate an async operation
+    setTimeout(() => {
+      setLoading(false);
+    }, 2000); // Adjust this timeout to match your data fetching duration
+  };
+
+  useEffect(() => {
+    fetchData(); // Load data when component mounts
+  }, [activeComponent]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchData(); // Load data when the screen is focused
+    }, [activeComponent])
+  );
 
   const renderComponent = () => {
     if (activeComponent === "one") {
-      return <ComponentOne />;
+      return <Buy />;
     } else if (activeComponent === "two") {
-      return <ComponentTwo />;
+      return <Sale />;
     }
   };
 
@@ -46,14 +64,16 @@ const HomeScreen = () => {
         </TouchableOpacity>
       </View>
 
-      <View style={styles.componentContainer}>{renderComponent()}</View>
+      <View style={styles.componentContainer}>
+        {loading ? (
+          <ActivityIndicator size="large" color="#4c7c54" />
+        ) : (
+          renderComponent()
+        )}
+      </View>
     </View>
   );
 };
-
-const ComponentOne = () => <Buy />;
-
-const ComponentTwo = () => <Sale />;
 
 const styles = StyleSheet.create({
   container: {
@@ -82,6 +102,8 @@ const styles = StyleSheet.create({
   },
   componentContainer: {
     flex: 1,
+    width: "100%",
+    justifyContent: "center",
   },
 });
 

@@ -36,10 +36,8 @@ const Sale = () => {
 
   useEffect(() => {
     fetchPosts();
-    // Polling: Fetch data every 10 seconds
     const interval = setInterval(fetchPosts, 10000); // 10 seconds
 
-    // Cleanup interval on component unmount
     return () => clearInterval(interval);
   }, []);
 
@@ -107,22 +105,24 @@ const Sale = () => {
 
       <ScrollView style={styles.scrollView}>
         {modalVisible && (
-          <BlurView intensity={50} style={styles.absolute}>
+          <BlurView intensity={30} style={styles.absolute}>
             <Modal
               animationType="slide"
               transparent={true}
               visible={modalVisible}
               onRequestClose={() => setModalVisible(false)}
             >
-              <View style={styles.modalView}>
-                <AntDesign
-                  onPress={() => setModalVisible(false)}
-                  style={styles.closeButton}
-                  name="close"
-                  size={24}
-                  color="red"
-                />
-                <CreateSalePost refreshPosts={refreshPosts} />
+              <View style={styles.overlay}>
+                <View style={styles.modalView}>
+                  <AntDesign
+                    onPress={() => setModalVisible(false)}
+                    style={styles.closeButton}
+                    name="close"
+                    size={24}
+                    color="red"
+                  />
+                  <CreateSalePost refreshPosts={refreshPosts} />
+                </View>
               </View>
             </Modal>
           </BlurView>
@@ -158,17 +158,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "white",
+    // Dark semi-transparent overlay
   },
   header: {
     backgroundColor: "whitesmoke",
     padding: 16,
     flexDirection: "row",
     justifyContent: "center",
-  },
-  logo: {
-    width: 50,
-    height: 50,
-    resizeMode: "contain",
   },
   addButton: {
     justifyContent: "center",
@@ -181,7 +177,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
   },
   scrollView: {
-    backgroundColor: "white",
     flex: 1,
   },
   absolute: {
@@ -192,9 +187,11 @@ const styles = StyleSheet.create({
     right: 0,
     justifyContent: "flex-end",
     alignItems: "center",
+    flex: 1,
   },
+  overlay: {},
   modalView: {
-    backgroundColor: "white",
+    backgroundColor: "#4c7c54",
     borderRadius: 20,
     padding: 10,
     shadowColor: "#000",
@@ -252,6 +249,12 @@ const styles = StyleSheet.create({
   },
   timestamp: {
     fontSize: 15,
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 

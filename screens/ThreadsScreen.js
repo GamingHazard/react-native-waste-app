@@ -6,6 +6,7 @@ import {
   Image,
   Modal,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 import React, { useEffect, useContext, useState, useCallback } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -21,6 +22,7 @@ const ThreadScreen = () => {
   const { userId, setUserId } = useContext(UserType);
   const [posts, setPosts] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
+  const [loading, setLoading] = useState(false); // Add loading state
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -35,10 +37,8 @@ const ThreadScreen = () => {
 
   useEffect(() => {
     fetchPosts();
-    // Polling: Fetch data every 10 seconds
     const interval = setInterval(fetchPosts, 10000); // 10 seconds
 
-    // Cleanup interval on component unmount
     return () => clearInterval(interval);
   }, []);
 
@@ -49,6 +49,7 @@ const ThreadScreen = () => {
   );
 
   const fetchPosts = async () => {
+    setLoading(true); // Set loading to true before fetching data
     try {
       const response = await axios.get(
         "https://waste-recycle-app-backend.onrender.com/get-posts"
@@ -56,6 +57,8 @@ const ThreadScreen = () => {
       setPosts(response.data);
     } catch (error) {
       console.log("error fetching posts", error);
+    } finally {
+      setLoading(false); // Set loading to false after fetching data
     }
   };
 
@@ -100,9 +103,7 @@ const ThreadScreen = () => {
         <View
           style={{
             flex: 1,
-
             justifyContent: "center",
-
             alignItems: "center",
           }}
         >
@@ -126,62 +127,74 @@ const ThreadScreen = () => {
 
       <ScrollView style={styles.scrollView}>
         {modalVisible && (
-          <BlurView intensity={50} style={styles.absolute}>
+          <BlurView intensity={30} style={styles.absolute}>
             <Modal
               animationType="slide"
               transparent={true}
               visible={modalVisible}
               onRequestClose={() => setModalVisible(false)}
             >
-              <View style={styles.modalView}>
-                <AntDesign
-                  onPress={() => setModalVisible(false)}
-                  style={styles.closeButton}
-                  name="close"
-                  size={24}
-                  color="red"
-                />
-                <CreatePost refreshPosts={refreshPosts} />
+              <View style={styles.overlay}>
+                <View style={styles.modalView}>
+                  <AntDesign
+                    onPress={() => setModalVisible(false)}
+                    style={styles.closeButton}
+                    name="close"
+                    size={24}
+                    color="red"
+                  />
+                  <CreatePost refreshPosts={refreshPosts} />
+                </View>
               </View>
             </Modal>
           </BlurView>
         )}
 
-        <View style={styles.postsContainer}>
-          {posts?.map((post) => (
-            <View key={post._id} style={styles.postContainer}>
-              <View style={styles.postFooter}>
-                <Image
-                  style={styles.profileImage}
-                  source={{
-                    uri: "https://cdn-icons-png.flaticon.com/128/149/149071.png",
-                  }}
-                />
-                <View>
-                  <Text style={styles.username}>{post?.user?.name}</Text>
-                  <Text style={styles.timestamp}>{post?.createdAt}</Text>
+        {loading ? (
+          <ActivityIndicator
+            size="large"
+            color="#4c7c54"
+            style={styles.loader}
+          />
+        ) : (
+          <View style={styles.postsContainer}>
+            {posts?.map((post) => (
+              <View key={post._id} style={styles.postContainer}>
+                <View style={styles.postFooter}>
+                  <Image
+                    style={styles.profileImage}
+                    source={{
+                      uri: "https://cdn-icons-png.flaticon.com/128/149/149071.png",
+                    }}
+                  />
+                  <View>
+                    <Text style={styles.username}>{post?.user?.name}</Text>
+                    <Text style={styles.timestamp}>{post?.createdAt}</Text>
+                  </View>
+                </View>
+                <View style={styles.postContent}>
+                  <Text style={styles.postText}>{post?.content}</Text>
+                  <View style={styles.likesContainer}>
+                    <Text style={styles.likesCount}>
+                      {post?.likes?.length} likes
+                    </Text>
+                    {post?.likes?.includes(userId) ? (
+                      <TouchableOpacity
+                        onPress={() => handleDislike(post?._id)}
+                      >
+                        <AntDesign name="heart" size={18} color="#4c7c54" />
+                      </TouchableOpacity>
+                    ) : (
+                      <TouchableOpacity onPress={() => handleLike(post?._id)}>
+                        <AntDesign name="hearto" size={18} color="black" />
+                      </TouchableOpacity>
+                    )}
+                  </View>
                 </View>
               </View>
-              <View style={styles.postContent}>
-                <Text style={styles.postText}>{post?.content}</Text>
-                <View style={styles.likesContainer}>
-                  <Text style={styles.likesCount}>
-                    {post?.likes?.length} likes
-                  </Text>
-                  {post?.likes?.includes(userId) ? (
-                    <TouchableOpacity onPress={() => handleDislike(post?._id)}>
-                      <AntDesign name="heart" size={18} color="#4c7c54" />
-                    </TouchableOpacity>
-                  ) : (
-                    <TouchableOpacity onPress={() => handleLike(post?._id)}>
-                      <AntDesign name="hearto" size={18} color="black" />
-                    </TouchableOpacity>
-                  )}
-                </View>
-              </View>
-            </View>
-          ))}
-        </View>
+            ))}
+          </View>
+        )}
       </ScrollView>
     </View>
   );
@@ -228,10 +241,16 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  overlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
   modalView: {
-    backgroundColor: "white",
+    backgroundColor: "#4c7c54",
     borderRadius: 20,
-    padding: 10,
+    padding: 20,
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -241,12 +260,17 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
     width: 350,
-    height: 300,
-    alignSelf: "center",
-    top: 100,
+    height: 500,
+    justifyContent: "center",
   },
   closeButton: {
-    alignSelf: "flex-end",
+    position: "absolute",
+    top: 10,
+    right: 10,
+  },
+  loader: {
+    justifyContent: "center",
+    alignItems: "center",
   },
   postsContainer: {
     flex: 1,
