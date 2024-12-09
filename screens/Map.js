@@ -33,6 +33,9 @@ const MapboxMap = () => {
             0
           ) / fetchedServices.length;
         setCenter({ latitude: averageLat, longitude: averageLng });
+      } else {
+        console.warn("No services available.");
+        setCenter({ latitude: 0, longitude: 0 }); // Default center
       }
     } catch (err) {
       console.error("Error fetching approved services:", err);

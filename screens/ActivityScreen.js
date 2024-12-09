@@ -19,9 +19,10 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { regionDistricts } from "../components/Districts";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import * as Location from "expo-location";
+import { UserType } from "../UserContext";
 
 const ActivityScreen = () => {
-  // const { UserID, UserToken } = useContext(AuthContext);
+  const { UserID } = useContext(UserType);
 
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -80,8 +81,8 @@ const ActivityScreen = () => {
       try {
         const response = await axios.get(
           `https://uga-cycle-backend-1.onrender.com/user/${UserID}/status`
-        ); // Replace with your actual server URL
-        setStatus(response.data.status); // Update state with fetched status
+        );
+        setStatus(response.data.status);
       } catch (err) {
         console.log(err);
       }
@@ -90,11 +91,11 @@ const ActivityScreen = () => {
     loadStoredData();
     fetchStatus();
 
-    // const interval = setInterval(() => {
-    //   fetchStatus();
-    // }, 5000);
+    const interval = setInterval(() => {
+      fetchStatus();
+    }, 5000);
 
-    // return () => clearInterval(interval);
+    return () => clearInterval(interval);
   }, []);
 
   // Handle checkbox toggle

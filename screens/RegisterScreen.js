@@ -46,6 +46,13 @@ const RegisterScreen = ({ navigation }) => {
   const togglePasswordVisibility = () => {
     setPasswordVisible(!passwordVisible);
   };
+  const saveToStorage = async (key, value) => {
+    try {
+      await AsyncStorage.setItem(key, JSON.stringify(value));
+    } catch (error) {
+      console.error("Failed to save to storage:", error);
+    }
+  };
 
   // User Registration
   const UserRegister = async (name, email, phone, password) => {
@@ -62,6 +69,10 @@ const RegisterScreen = ({ navigation }) => {
           setUserInfo(response.data);
           setUserToken(token);
           setUserID(id);
+
+          await saveToStorage("profile", response.data);
+          await saveToStorage("userToken", token);
+          await saveToStorage("userId", id);
           register(token, id, response.data);
         } else {
           Alert.alert("Error", "Token or ID missing in response.");

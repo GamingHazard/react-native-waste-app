@@ -22,13 +22,13 @@ import { AntDesign } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 
 import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { UserType } from "../UserContext";
 
 const ThreadScreen = () => {
+  const { UserID } = useContext(UserType);
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loading2, setLoading2] = useState(false);
-  const [isVisible, setisVisible] = useState(false);
-  const [UserID, setUserID] = useState("");
   const [content, setContent] = useState("");
   const [isFloatingBtnVisible, setIsFloatingBtnVisible] = useState(false); // State for button visibility
   const scrollViewRef = useRef();
@@ -124,11 +124,11 @@ const ThreadScreen = () => {
     fetchPosts(true);
     loadScrollPosition(); // Scroll to last saved position on mount
 
-    // const interval = setInterval(() => {
-    //   fetchPosts();
-    // }, 10000);
+    const interval = setInterval(() => {
+      fetchPosts();
+    }, 3000);
 
-    // return () => clearInterval(interval);
+    return () => clearInterval(interval);
   }, []);
 
   useFocusEffect(
@@ -273,7 +273,7 @@ const ThreadScreen = () => {
       <View style={styles.inputContainer}>
         <TextInput
           style={{ flex: 1 }}
-          placeholder="Write your post here..."
+          placeholder="Create Post..."
           value={content}
           onChangeText={handleChange}
         />
@@ -386,9 +386,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     padding: 10,
     borderTopWidth: 1,
-    borderColor: "#ddd",
+    borderColor: "#3b6d3b",
     alignItems: "center",
     backgroundColor: "#fbfbda",
+    elevation: 10,
   },
   floatingButton: {
     position: "absolute",

@@ -8,22 +8,27 @@ import {
   Image,
   ActivityIndicator,
 } from "react-native";
-// import { AuthContext } from "../context/AuthContext";
-import ProfileEditScreen from "./EditProfile";
+import { UserType } from "../../UserContext";
+import ModalView from "../../components/Modal";
+import ProfileEditScreen from "../../screens/settingsScreens/EditProfile";
 import Fontisto from "@expo/vector-icons/Fontisto";
 import Entypo from "@expo/vector-icons/Entypo";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import ModalView from "../../components/Modal";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import * as ImagePicker from "expo-image-picker";
 
 const ProfileScreen = () => {
-  //   const [user, setUser] = useState(UserInfo?.user || {});
-  const [user, setUser] = useState("");
+  const {
+    ShowEditPage,
+    HideEditPage,
+    MainModal,
+    SelectedImage,
+    UserInfo,
+    uploadImage,
+    removeImage,
+  } = useContext(UserType);
+
+  const [user, setUser] = useState(UserInfo?.user || {});
   const [imageUploadModal, setimageUploadModal] = useState(false);
-  const [MainModal, setMainModal] = useState(false);
-  const [SelectedImage, setSelectedImage] = useState(null);
 
   const ShowImageModal = () => {
     setimageUploadModal(true);
@@ -33,175 +38,17 @@ const ProfileScreen = () => {
     setimageUploadModal(false);
   };
 
-  // Profile Edit Modal Toggle
-  const ShowEditPage = () => setMainModal(true);
-  const HideEditPage = () => setMainModal(false);
-
-  //   // Update user state when UserInfo changes
-  //   useEffect(() => {
-  //     if (UserInfo?.user) {
-  //       setUser(UserInfo.user);
-  //     }
-  //   }, [UserInfo]);
+  // Update user state when UserInfo changes
+  useEffect(() => {
+    if (UserInfo?.user) {
+      setUser(UserInfo.user);
+    }
+  }, [UserInfo]);
 
   const userName = user.name || "Name of User";
   const userPhone = user.phone ? `(+256)-${user.phone}` : "Phone not available";
   const userEmail = user.email || "Email not available";
   const ProfilePicture = user.profilePicture;
-
-  // Image Picker Logic
-  const uploadImage = async (mode) => {
-    try {
-      let result = {};
-
-      // Check permissions and pick image
-      if (mode === "gallery") {
-        const permissionResult =
-          await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (!permissionResult.granted) {
-          Alert.alert("Permission Required", "Gallery permission is required.");
-          return;
-        }
-        result = await ImagePicker.launchImageLibraryAsync({
-          mediaTypes: ImagePicker.MediaTypeOptions.Images,
-          allowsEditing: true,
-          aspect: [1, 1],
-          quality: 1,
-        });
-      } else {
-        const permissionResult =
-          await ImagePicker.requestCameraPermissionsAsync();
-        if (!permissionResult.granted) {
-          Alert.alert("Permission Required", "Camera permission is required.");
-          return;
-        }
-        result = await ImagePicker.launchCameraAsync({
-          cameraType: ImagePicker.CameraType.front,
-          allowsEditing: true,
-          aspect: [1, 1],
-          quality: 1,
-        });
-      }
-
-      if (!result.canceled && result.assets && result.assets.length > 0) {
-        const imageUri = result.assets[0].uri;
-        setSelectedImage(imageUri);
-        await uploadImageToCloudinary(imageUri);
-      }
-    } catch (error) {
-      console.log("Error selecting image: ", error);
-    }
-  };
-
-  // Upload Image to Cloudinary
-  const uploadImageToCloudinary = async (imageUri) => {
-    const CLOUDINARY_URL =
-      "https://api.cloudinary.com/v1_1/ghost150/image/upload";
-    const CLOUDINARY_UPLOAD_PRESET = "profile-images";
-
-    const formData = new FormData();
-    formData.append("file", {
-      uri: imageUri,
-      type: "image/jpeg",
-      name: "profilePicture.jpg",
-    });
-    formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-
-    try {
-      const response = await fetch(CLOUDINARY_URL, {
-        method: "POST",
-        body: formData,
-      });
-
-      const data = await response.json();
-      if (response.ok) {
-        await saveImageToStorage(data.secure_url);
-        await saveImageToStorage();
-      } else {
-        throw new Error("Error uploading image to Cloudinary");
-      }
-    } catch (error) {
-      // Alert.alert(error);
-      Alert.alert(
-        "Failed!",
-        error.message +
-          "                                             " +
-          "                                             " +
-          "Please check you internet connection and try again"
-      );
-      console.error("Cloudinary upload failed:", error);
-    }
-  };
-
-  // Save image URL to AsyncStorage and update backend
-  const saveImageToStorage = async (imageUrl) => {
-    try {
-      await saveToStorage("userImage", imageUrl);
-      await updateProfilePicture(imageUrl);
-    } catch (error) {
-      Alert.alert(
-        "Failed!",
-        error.message +
-          "                                             " +
-          "Please check you internet connection and try again"
-      );
-      console.log("Error saving image:", error);
-    }
-  };
-
-  // Update Profile Picture in Backend
-  const updateProfilePicture = async (profilePictureUrl) => {
-    try {
-      const response = await axios.patch(
-        `https://uga-cycle-backend-1.onrender.com/updateProfilePicture/${UserID}`,
-        { profilePicture: profilePictureUrl },
-        { headers: { "Content-Type": "application/json" } }
-      );
-
-      if (response.status === 200) {
-        setUserInfo(response.data);
-        setUserToken(response.data.verificationToken);
-        setUserID(response.data.user._id);
-        await saveToStorage("userInfo", response.data);
-        await saveToStorage("userToken", response.data.verificationToken);
-        await saveToStorage("userId", response.data.user._id);
-        setSelectedImage(profilePictureUrl);
-      }
-    } catch (error) {
-      console.log("Error updating profile picture:", error);
-    }
-  };
-
-  // Remove Profile Picture
-  const removeImage = async () => {
-    try {
-      const response = await axios.patch(
-        `https://uga-cycle-backend-1.onrender.com/updateProfilePicture/${UserID}`,
-        { profilePicture: "" },
-        { headers: { "Content-Type": "application/json" } }
-      );
-
-      if (response.status === 200) {
-        setSelectedImage(null);
-        await AsyncStorage.removeItem("userImage");
-        setUserInfo(response.data);
-        setUserToken(response.data.verificationToken);
-        setUserID(response.data.user._id);
-        await saveToStorage("userInfo", response.data);
-        await saveToStorage("userToken", response.data.verificationToken);
-        await saveToStorage("userId", response.data.user._id);
-      }
-    } catch (error) {
-      Alert.alert(
-        "Failed!",
-        error.message +
-          "                                             " +
-          "                                             " +
-          "Please check you internet connection and try again"
-      );
-      console.log("Error removing image: ", error);
-    }
-  };
 
   return (
     <View style={styles.container}>
@@ -210,13 +57,11 @@ const ProfileScreen = () => {
         <View style={styles.profilePicContainer}>
           <Image
             source={
-              ProfilePicture
-                ? { uri: ProfilePicture }
-                : {
-                    uri: SelectedImage,
-                  } || {
-                    uri: "https://cdn-icons-png.flaticon.com/128/149/149071.png",
-                  }
+              { uri: ProfilePicture } || {
+                uri: SelectedImage,
+              } || {
+                uri: "https://cdn-icons-png.flaticon.com/128/149/149071.png",
+              }
             }
             style={{
               width: "100%",

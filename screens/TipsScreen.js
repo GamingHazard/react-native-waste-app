@@ -22,11 +22,12 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 import axios from "axios";
 import { AntDesign } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { UserType } from "../UserContext";
 
 const Tips = () => {
   const handleChange = (text) => setContent(text);
+  const { UserID } = useContext(UserType);
 
-  //   const { UserID } = useContext(AuthContext);
   const [posts, setPosts] = useState([]);
   const [content, setContent] = useState("");
   const [loading2, setLoading2] = useState(false);
@@ -179,11 +180,11 @@ const Tips = () => {
     fetchPosts(true);
     loadScrollPosition(); // Scroll to last saved position on mount
 
-    // const interval = setInterval(() => {
-    //   fetchPosts();
-    // }, 10000);
+    const interval = setInterval(() => {
+      fetchPosts();
+    }, 10000);
 
-    // return () => clearInterval(interval);
+    return () => clearInterval(interval);
   }, []);
 
   useFocusEffect(

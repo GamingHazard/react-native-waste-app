@@ -79,9 +79,7 @@ const LoginScreen = ({ navigation }) => {
           );
 
           const { token, user } = response.data;
-          await saveToStorage("profile", response.data);
-          await saveToStorage("userToken", token);
-          await saveToStorage("userId", user.id);
+
           login(token, user.role, user.id, response.data);
           return response.data; // Return successful user login data
         } catch (userLoginError) {
