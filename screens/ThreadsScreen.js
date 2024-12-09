@@ -4,74 +4,154 @@ import {
   View,
   ScrollView,
   Image,
-  Modal,
   TouchableOpacity,
   ActivityIndicator,
+  TextInput,
+  Alert,
 } from "react-native";
-import React, { useEffect, useContext, useState, useCallback } from "react";
+import React, {
+  useEffect,
+  useContext,
+  useState,
+  useRef,
+  useCallback,
+} from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import jwt_decode from "jwt-decode";
-import { UserType } from "../UserContext";
 import axios from "axios";
 import { AntDesign } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
-import { BlurView } from "expo-blur";
-import CreatePost from "../components/CreatePost";
+
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 
 const ThreadScreen = () => {
-  const { userId, setUserId } = useContext(UserType);
   const [posts, setPosts] = useState([]);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [loading, setLoading] = useState(false); // Add loading state
+  const [loading, setLoading] = useState(true);
+  const [loading2, setLoading2] = useState(false);
+  const [isVisible, setisVisible] = useState(false);
+  const [UserID, setUserID] = useState("");
+  const [content, setContent] = useState("");
+  const [isFloatingBtnVisible, setIsFloatingBtnVisible] = useState(false); // State for button visibility
+  const scrollViewRef = useRef();
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      const token = await AsyncStorage.getItem("authToken");
-      const decodedToken = jwt_decode(token);
-      const userId = decodedToken.userId;
-      setUserId(userId);
+  const handleChange = (text) => setContent(text);
+
+  const handlePostSubmit = async () => {
+    if (!content.trim()) {
+      Alert.alert("Error", "Please enter content before submitting.");
+      return;
+    }
+
+    const postData = {
+      userId: UserID,
+      content: content.trim(),
     };
 
-    fetchUsers();
-  }, []);
+    try {
+      setLoading2(true);
+      const response = await axios.post(
+        "https://uga-cycle-backend-1.onrender.com/create-post",
+        postData
+      );
+
+      if (response.status === 200) {
+        setContent("");
+        fetchPosts(); // Refresh posts after submission
+      } else {
+        Alert.alert("Error", "Failed to submit post. Please try again.");
+      }
+    } catch (error) {
+      console.log("Error creating post", error);
+    } finally {
+      setLoading2(false);
+    }
+  };
+
+  const fetchPosts = async (showLoading = true) => {
+    if (showLoading) setLoading(true);
+
+    try {
+      const response = await axios.get(
+        "https://uga-cycle-backend-1.onrender.com/get-posts"
+      );
+      setPosts(response.data);
+
+      // Save fetched posts to AsyncStorage
+      await AsyncStorage.setItem("posts", JSON.stringify(response.data));
+    } catch (error) {
+      console.log("Error fetching posts", error);
+    } finally {
+      if (showLoading) setLoading(false);
+    }
+  };
+
+  const saveScrollPosition = async (yOffset) => {
+    try {
+      await AsyncStorage.setItem("scrollPosition", JSON.stringify(yOffset));
+    } catch (error) {
+      console.log("Error saving scroll position", error);
+    }
+  };
+
+  const loadScrollPosition = async () => {
+    try {
+      const savedPosition = await AsyncStorage.getItem("scrollPosition");
+      if (savedPosition && scrollViewRef.current) {
+        scrollViewRef.current.scrollTo({
+          y: parseFloat(savedPosition),
+          animated: true,
+        });
+      }
+    } catch (error) {
+      console.log("Error loading scroll position", error);
+    }
+  };
 
   useEffect(() => {
-    fetchPosts();
-    const interval = setInterval(fetchPosts, 10000); // 10 seconds
+    const loadPostsFromStorage = async () => {
+      try {
+        const storedPosts = await AsyncStorage.getItem("posts");
+        if (storedPosts) {
+          setPosts(JSON.parse(storedPosts));
+        }
+      } catch (error) {
+        console.log("Error loading posts from storage", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    return () => clearInterval(interval);
+    loadPostsFromStorage();
+    fetchPosts(true);
+    loadScrollPosition(); // Scroll to last saved position on mount
+
+    // const interval = setInterval(() => {
+    //   fetchPosts();
+    // }, 10000);
+
+    // return () => clearInterval(interval);
   }, []);
 
   useFocusEffect(
     useCallback(() => {
-      fetchPosts();
+      // fetchPosts();
+      loadScrollPosition(); // Reload scroll position on focus
     }, [])
   );
-
-  const fetchPosts = async () => {
-    setLoading(true); // Set loading to true before fetching data
-    try {
-      const response = await axios.get(
-        "https://waste-recycle-app-backend.onrender.com/get-posts"
-      );
-      setPosts(response.data);
-    } catch (error) {
-      console.log("error fetching posts", error);
-    } finally {
-      setLoading(false); // Set loading to false after fetching data
-    }
-  };
 
   const handleLike = async (postId) => {
     try {
       const response = await axios.put(
-        `https://waste-recycle-app-backend.onrender.com/posts/${postId}/${userId}/like`
+        `https://uga-cycle-backend-1.onrender.com/posts/${postId}/${UserID}/like`
       );
       const updatedPost = response.data;
-      const updatedPosts = posts.map((post) =>
-        post._id === updatedPost._id ? updatedPost : post
+      setPosts((prevPosts) =>
+        prevPosts.map((post) =>
+          post._id === updatedPost._id ? updatedPost : post
+        )
       );
-      setPosts(updatedPosts);
+
+      // Update AsyncStorage with the new post data
+      await AsyncStorage.setItem("posts", JSON.stringify(posts));
     } catch (error) {
       console.log("Error liking the post", error);
     }
@@ -80,96 +160,90 @@ const ThreadScreen = () => {
   const handleDislike = async (postId) => {
     try {
       const response = await axios.put(
-        `https://waste-recycle-app-backend.onrender.com/posts/${postId}/${userId}/unlike`
+        `https://uga-cycle-backend-1.onrender.com/posts/${postId}/${UserID}/unlike`
       );
       const updatedPost = response.data;
-      const updatedPosts = posts.map((post) =>
-        post._id === updatedPost._id ? updatedPost : post
+      setPosts((prevPosts) =>
+        prevPosts.map((post) =>
+          post._id === updatedPost._id ? updatedPost : post
+        )
       );
-      setPosts(updatedPosts);
+
+      // Update AsyncStorage with the new post data
+      await AsyncStorage.setItem("posts", JSON.stringify(posts));
     } catch (error) {
       console.error("Error unliking post:", error);
     }
   };
 
-  const refreshPosts = () => {
-    fetchPosts();
+  const scrollToLatestPost = () => {
+    if (scrollViewRef.current) {
+      scrollViewRef.current.scrollToEnd({ animated: true });
+    }
+  };
+
+  const handleScroll = (event) => {
+    const yOffset = event.nativeEvent.contentOffset.y;
+    // Show floating button if scrolling down
+    setIsFloatingBtnVisible(yOffset > 200); // You can adjust the scroll position threshold as needed
+    saveScrollPosition(yOffset);
+  };
+
+  // Function to handle touch events and make the button visible temporarily
+  const handleTouch = () => {
+    setIsFloatingBtnVisible(true);
+    // Hide the button after 3 seconds
+    setTimeout(() => {
+      setIsFloatingBtnVisible(false);
+    }, 3000); // Adjust the duration as needed
   };
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} onTouchStart={handleTouch}>
+      {/* Detect touch */}
       <View style={styles.header}>
         <Image source={require("../assets/logo.png")} style={styles.logo} />
         <View
-          style={{
-            flex: 1,
-            justifyContent: "center",
-            alignItems: "center",
-          }}
+          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
         >
-          <Text
-            style={{
-              color: "#fbfbda",
-              fontSize: 35,
-              fontWeight: "bold",
-            }}
-          >
-            Community
-          </Text>
+          <Text style={styles.headerText}>Community</Text>
         </View>
-        <TouchableOpacity
-          style={styles.addButton}
-          onPress={() => setModalVisible(true)}
-        >
-          <AntDesign name="plus" size={24} color="white" />
+        <TouchableOpacity>
+          {loading ? (
+            <ActivityIndicator size="small" color="#fbfbda" />
+          ) : (
+            <AntDesign name="bells" size={24} color="#fbfbda" />
+          )}
         </TouchableOpacity>
       </View>
-
-      <ScrollView style={styles.scrollView}>
-        {modalVisible && (
-          <BlurView intensity={30} style={styles.absolute}>
-            <Modal
-              animationType="slide"
-              transparent={true}
-              visible={modalVisible}
-              onRequestClose={() => setModalVisible(false)}
-            >
-              <View style={styles.overlay}>
-                <View style={styles.modalView}>
-                  <AntDesign
-                    onPress={() => setModalVisible(false)}
-                    style={styles.closeButton}
-                    name="close"
-                    size={24}
-                    color="red"
-                  />
-                  <CreatePost refreshPosts={refreshPosts} />
-                </View>
-              </View>
-            </Modal>
-          </BlurView>
-        )}
-
-        {loading ? (
-          <ActivityIndicator
-            size="large"
-            color="#4c7c54"
-            style={styles.loader}
-          />
-        ) : (
-          <View style={styles.postsContainer}>
-            {posts?.map((post) => (
+      <ScrollView
+        style={styles.scrollView}
+        ref={scrollViewRef}
+        onScroll={handleScroll} // Add the scroll handler here
+        scrollEventThrottle={16}
+      >
+        <View style={styles.postsContainer}>
+          {posts
+            .slice()
+            .reverse()
+            .map((post) => (
               <View key={post._id} style={styles.postContainer}>
                 <View style={styles.postFooter}>
                   <Image
                     style={styles.profileImage}
-                    source={{
-                      uri: "https://cdn-icons-png.flaticon.com/128/149/149071.png",
-                    }}
+                    source={
+                      post?.user?.profilePicture
+                        ? { uri: post?.user?.profilePicture }
+                        : {
+                            uri: "https://cdn-icons-png.flaticon.com/128/149/149071.png",
+                          }
+                    }
                   />
                   <View>
                     <Text style={styles.username}>{post?.user?.name}</Text>
-                    <Text style={styles.timestamp}>{post?.createdAt}</Text>
+                    <Text style={styles.timestamp}>
+                      {new Date(post?.createdAt).toLocaleString()}
+                    </Text>
                   </View>
                 </View>
                 <View style={styles.postContent}>
@@ -178,11 +252,11 @@ const ThreadScreen = () => {
                     <Text style={styles.likesCount}>
                       {post?.likes?.length} likes
                     </Text>
-                    {post?.likes?.includes(userId) ? (
+                    {post?.likes?.includes(UserID) ? (
                       <TouchableOpacity
                         onPress={() => handleDislike(post?._id)}
                       >
-                        <AntDesign name="heart" size={18} color="#4c7c54" />
+                        <AntDesign name="heart" size={18} color="#3b6d3b" />
                       </TouchableOpacity>
                     ) : (
                       <TouchableOpacity onPress={() => handleLike(post?._id)}>
@@ -193,9 +267,44 @@ const ThreadScreen = () => {
                 </View>
               </View>
             ))}
-          </View>
-        )}
+        </View>
+        <View style={{ width: "100%", height: 30 }} />
       </ScrollView>
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={{ flex: 1 }}
+          placeholder="Write your post here..."
+          value={content}
+          onChangeText={handleChange}
+        />
+        <TouchableOpacity
+          onPress={handlePostSubmit}
+          disabled={!content.trim()} // Disable the button if the input is empty or whitespace
+          style={[
+            styles.sendButton,
+            { opacity: content.trim() ? 1 : 0.5 }, // Adjust opacity based on button state
+          ]}
+        >
+          {loading2 ? (
+            <ActivityIndicator size="small" color="green" />
+          ) : (
+            <FontAwesome
+              name="send"
+              size={24}
+              color={content.trim() ? "#3b6d3b" : "#888"}
+            />
+          )}
+        </TouchableOpacity>
+      </View>
+
+      {isFloatingBtnVisible && (
+        <TouchableOpacity
+          style={styles.floatingButton}
+          onPress={scrollToLatestPost}
+        >
+          <FontAwesome name="arrow-down" size={18} color="#fff" />
+        </TouchableOpacity>
+      )}
     </View>
   );
 };
@@ -203,114 +312,92 @@ const ThreadScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "lightblue",
+    backgroundColor: "#f9f9f9",
   },
   header: {
-    backgroundColor: "#547c5c",
-    padding: 16,
     flexDirection: "row",
-    justifyContent: "center",
+    padding: 10,
+    backgroundColor: "#3b6d3b",
     alignItems: "center",
+    justifyContent: "space-between",
   },
   logo: {
-    width: 90,
-    height: 90,
-    resizeMode: "contain",
-  },
-  addButton: {
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "black",
-    borderRadius: 50,
     width: 40,
     height: 40,
-    alignSelf: "flex-end",
-    marginHorizontal: 10,
-    top: -20,
+  },
+  headerText: {
+    fontSize: 18,
+    color: "#fff",
   },
   scrollView: {
-    backgroundColor: "white",
     flex: 1,
-  },
-  absolute: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    bottom: 0,
-    right: 0,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  overlay: {
-    flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.6)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  modalView: {
-    backgroundColor: "#4c7c54",
-    borderRadius: 20,
-    padding: 20,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-    width: 350,
-    height: 500,
-    justifyContent: "center",
-  },
-  closeButton: {
-    position: "absolute",
-    top: 10,
-    right: 10,
-  },
-  loader: {
-    justifyContent: "center",
-    alignItems: "center",
+    paddingHorizontal: 15,
   },
   postsContainer: {
-    flex: 1,
+    marginTop: 10,
   },
   postContainer: {
-    padding: 15,
-    borderColor: "#D0D0D0",
-    borderTopWidth: 1,
-  },
-  postContent: { marginVertical: 20 },
-  postText: {
+    marginBottom: 15,
     padding: 10,
-  },
-  likesContainer: {
-    alignItems: "flex-end",
-    flexDirection: "row",
-    paddingRight: 20,
-    marginTop: 20,
-  },
-  likesCount: {
-    color: "gray",
-    flex: 1,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 10,
+    backgroundColor: "white",
   },
   postFooter: {
     flexDirection: "row",
-    alignItems: "center",
+    marginBottom: 10,
+    padding: 10,
+    // backgroundColor: "lightblue",
   },
   profileImage: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    resizeMode: "contain",
-    marginRight: 16,
+    marginRight: 10,
   },
   username: {
-    fontSize: 15,
     fontWeight: "bold",
+    color: "green",
   },
   timestamp: {
-    fontSize: 15,
+    fontSize: 12,
+    color: "#888",
+    // top: -10,
+  },
+  postContent: {
+    marginBottom: 10,
+  },
+  postText: {
+    fontSize: 16,
+    marginBottom: 10,
+  },
+  likesContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  likesCount: {
+    fontSize: 14,
+    marginRight: 10,
+    flex: 1,
+    color: "#888",
+  },
+  inputContainer: {
+    flexDirection: "row",
+    padding: 10,
+    borderTopWidth: 1,
+    borderColor: "#ddd",
+    alignItems: "center",
+    backgroundColor: "#fbfbda",
+  },
+  floatingButton: {
+    position: "absolute",
+    bottom: 50,
+    right: 20,
+    backgroundColor: "#3b6d3b",
+    padding: 8,
+    borderRadius: 50,
+    elevation: 5,
   },
 });
 

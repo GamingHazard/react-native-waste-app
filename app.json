@@ -4,14 +4,16 @@
     "slug": "threads-app",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/splash.png",
+    "icon": "./assets/Icon2.png",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/logo.png",
       "resizeMode": "contain",
       "backgroundColor": "#4c7c54"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true
     },
@@ -27,7 +29,7 @@
     },
     "extra": {
       "eas": {
-        "projectId": "293be08a-1cbd-4382-a42b-69753118564e"
+        "projectId": "645aad2a-73fa-4575-b523-f2b1087e82bd"
       }
     }
   }

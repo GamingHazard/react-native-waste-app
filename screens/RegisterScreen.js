@@ -1,276 +1,363 @@
+import React, { useState, useContext } from "react";
 import {
-  StyleSheet,
   Text,
+  StyleSheet,
   View,
-  SafeAreaView,
-  Image,
-  KeyboardAvoidingView,
+  TouchableOpacity,
   TextInput,
-  Pressable,
-  Alert,
   ActivityIndicator,
+  Alert,
+  Image,
 } from "react-native";
-import React, { useState } from "react";
-import { MaterialIcons, AntDesign, Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import Fontisto from "@expo/vector-icons/Fontisto";
+import { Ionicons } from "@expo/vector-icons";
 import axios from "axios";
+import { UserType } from "../UserContext";
+const RegisterScreen = ({ navigation }) => {
+  const { register } = useContext(UserType);
 
-const RegisterScreen = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
-  const navigation = useNavigation();
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const [emailError, setEmailError] = useState("");
+  const [phoneError, setPhoneError] = useState("");
 
   const validateEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
+    const emailRegex = /^[a-z0-9]+@[a-z]+\.[a-z]{2,3}$/;
+    if (!emailRegex.test(email)) {
+      setEmailError("Please enter a valid email address");
+    } else {
+      setEmailError("");
+    }
   };
 
-  const handleRegister = async () => {
-    // Validate fields
-    if (!name || !email || !password) {
-      Alert.alert("Validation Error", "Please fill in all fields.");
-      return;
+  const validatePhone = (phone) => {
+    if (phone.length > 10) {
+      setPhoneError("Phone number must be 10 digits or less");
+    } else {
+      setPhoneError("");
     }
+  };
 
-    if (!validateEmail(email)) {
-      Alert.alert("Validation Error", "Please enter a valid email address.");
-      return;
-    }
+  const togglePasswordVisibility = () => {
+    setPasswordVisible(!passwordVisible);
+  };
 
+  // User Registration
+  const UserRegister = async (name, email, phone, password) => {
     setLoading(true);
-    const user = {
-      name: name,
-      email: email.toLowerCase(), // Ensure email is lowercase
-      password: password,
-    };
-
     try {
       const response = await axios.post(
-        "https://waste-recycle-app-backend.onrender.com/register",
-        user
+        "https://uga-cycle-backend-1.onrender.com/register",
+        { name, email, phone, password }
       );
-      console.log(response);
-      Alert.alert(
-        "Registration successful",
-        "You have been registered successfully"
-      );
-      setName("");
-      setEmail("");
-      setPassword("");
-      setLoading(false);
-      navigation.replace("Login");
+
+      if (response.status === 200 || response.status === 201) {
+        const { token, id } = response.data.user;
+        if (token && id) {
+          setUserInfo(response.data);
+          setUserToken(token);
+          setUserID(id);
+          register(token, id, response.data);
+        } else {
+          Alert.alert("Error", "Token or ID missing in response.");
+        }
+      } else {
+        Alert.alert("Error", response.data.message || "Registration failed.");
+      }
     } catch (error) {
+      console.error("Error registering user:", error);
+      Alert.alert("Error", error.message || "Registration failed.");
+    } finally {
       setLoading(false);
-      Alert.alert(
-        "Registration failed",
-        "An error occurred during registration"
-      );
-      console.error("Registration error", error);
+    }
+  };
+
+  const handleSubmit = async () => {
+    validateEmail(email);
+    validatePhone(phone);
+
+    if (!emailError && !phoneError && name && password) {
+      setLoading(true);
+      register(name, email, phone, password);
+      setTimeout(() => {}, 2000);
     }
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#4c7c54" }}>
-      <View style={{ marginTop: 50 }}>
+    <View style={styles.container}>
+      <View
+        style={{
+          padding: 15,
+          alignItems: "center",
+          backgroundColor: "white",
+          elevation: 10,
+          borderRadius: 10,
+          marginHorizontal: 20,
+          width: "90%",
+        }}
+      >
         <Image
-          source={require("../assets/logo.png")}
-          style={{
-            width: 150,
-            height: 100,
-            resizeMode: "contain",
-            alignSelf: "center",
-          }}
+          source={require("../assets/icon3.png")}
+          style={{ width: 100, height: 100 }}
         />
-      </View>
-
-      <KeyboardAvoidingView>
+        <Text style={{ fontWeight: "bold", fontSize: 25, color: "#3b6d3b" }}>
+          Create an account
+        </Text>
+        {/* name Input */}
         <View
           style={{
-            alignItems: "center",
-            justifyContent: "center",
-            padding: 10,
+            width: "100%",
+            height: 60,
+            padding: 15,
+            borderWidth: 0.5,
+            borderColor: "#3b6d3b",
+            borderTopLeftRadius: 10,
+            borderTopRightRadius: 10,
+            flexDirection: "row",
+            marginBottom: 10,
           }}
         >
-          <Text
-            style={{
-              fontSize: 17,
-              fontWeight: "bold",
-              marginTop: 25,
-              color: "#fbfbda",
-            }}
-          >
-            Register Account
-          </Text>
+          {/* <AntDesign name= size={24} color="#3b6d3b" /> */}
+          <MaterialCommunityIcons name="human" size={24} color="#3b6d3b" />
+          <TextInput
+            style={{ width: "100%", marginLeft: 10, fontSize: 16 }}
+            placeholderTextColor={"#3b6d3b"}
+            placeholder="Username"
+            onChangeText={setName}
+            value={name}
+          />
         </View>
-
-        <View style={{ marginTop: 30 }}>
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              gap: 5,
-              borderColor: "#D0D0D0",
-              borderWidth: 1,
-              paddingVertical: 5,
-              borderRadius: 5,
-              marginHorizontal: 16,
-              backgroundColor: "white",
-            }}
-          >
-            <Ionicons
-              style={{ marginLeft: 8 }}
-              name="person"
-              size={24}
-              color="#4c7c54"
-            />
-            <TextInput
-              value={name}
-              onChangeText={(text) => setName(text)}
-              placeholderTextColor={"#4c7c54"}
-              autoCapitalize="none"
-              style={{
-                color: "#4c7c54",
-                marginVertical: 10,
-                width: 300,
-                fontSize: 16,
-              }}
-              placeholder="Enter your Name"
-            />
-          </View>
-        </View>
-
-        <View style={{ marginTop: 30 }}>
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              gap: 5,
-              borderColor: "#D0D0D0",
-              borderWidth: 1,
-              paddingVertical: 5,
-              borderRadius: 5,
-              marginHorizontal: 16,
-              backgroundColor: "white",
-            }}
-          >
-            <MaterialIcons
-              style={{ marginLeft: 8 }}
-              name="email"
-              size={24}
-              color="#4c7c54"
-            />
-            <TextInput
-              value={email}
-              onChangeText={(text) => setEmail(text)} // Update state without validation
-              placeholderTextColor={"#4c7c54"}
-              style={{
-                color: "#4c7c54",
-                marginVertical: 10,
-                width: 300,
-                fontSize: 16,
-              }}
-              placeholder="Enter your Email"
-              keyboardType="email-address" // Use email address keyboard type
-            />
-          </View>
-
-          <View style={{ marginTop: 30 }}>
-            <View
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                borderColor: "#D0D0D0",
-                borderWidth: 1,
-                paddingVertical: 5,
-                borderRadius: 5,
-                marginHorizontal: 16,
-                backgroundColor: "white",
-              }}
-            >
-              <AntDesign
-                style={{ marginLeft: 8 }}
-                name="lock"
-                size={24}
-                color="#4c7c54"
-              />
-              <TextInput
-                secureTextEntry={!showPassword} // Toggle password visibility
-                value={password}
-                onChangeText={(text) => setPassword(text)}
-                placeholderTextColor={"#4c7c54"}
-                style={{
-                  color: "#4c7c54",
-                  marginVertical: 10,
-                  width: 300,
-                  fontSize: 16,
-                }}
-                placeholder="Enter your Password"
-              />
-              <Pressable
-                onPress={() => setShowPassword(!showPassword)} // Toggle showPassword state
-                style={{
-                  position: "absolute",
-                  right: 8,
-                  padding: 8,
-                }}
-              >
-                <Ionicons
-                  name={showPassword ? "eye" : "eye-off"}
-                  size={24}
-                  color="#4c7c54"
-                />
-              </Pressable>
-            </View>
-          </View>
-        </View>
-
-        <View style={{ marginTop: 45 }} />
-
-        <Pressable
-          onPress={handleRegister}
+        {/* Email Input */}
+        <View
           style={{
-            width: 200,
-            backgroundColor: "#fbfbda",
+            width: "100%",
+            height: 60,
             padding: 15,
-            marginLeft: "auto",
-            marginRight: "auto",
-            borderRadius: 6,
-            alignItems: "center",
-            justifyContent: "center",
+            borderWidth: 0.5,
+            borderColor: emailError ? "red" : "#3b6d3b",
+            flexDirection: "row",
+            marginBottom: 10,
           }}
+        >
+          <MaterialCommunityIcons name="email" size={24} color="#3b6d3b" />
+          <TextInput
+            style={{ width: "100%", marginLeft: 10, fontSize: 16 }}
+            placeholderTextColor={"#3b6d3b"}
+            placeholder="Email address"
+            onChangeText={setEmail}
+            onBlur={() => validateEmail(email)}
+            autoCapitalize="none"
+            value={email}
+          />
+        </View>
+        {emailError ? <Text style={{ color: "red" }}>{emailError}</Text> : null}
+        {/* Phone Input */}
+        <View
+          style={{
+            width: "100%",
+            height: 60,
+            padding: 15,
+            borderWidth: 0.5,
+            borderColor: phoneError ? "red" : "#3b6d3b",
+            flexDirection: "row",
+            marginBottom: 10,
+          }}
+        >
+          {/* <Feather name="phone" size={24} color="#3b6d3b" /> */}
+          <MaterialCommunityIcons name="phone" size={24} color="#3b6d3b" />
+          <TextInput
+            style={{ width: "100%", marginLeft: 10, fontSize: 16 }}
+            placeholderTextColor={"#3b6d3b"}
+            placeholder="Tel number (+256)"
+            keyboardType="numeric"
+            onChangeText={setPhone}
+            onBlur={() => validatePhone(phone)}
+            value={phone}
+          />
+        </View>
+        {phoneError ? <Text style={{ color: "red" }}>{phoneError}</Text> : null}
+        {/* Password Input */}
+        <View
+          style={{
+            width: "100%",
+            height: 60,
+            padding: 15,
+            borderWidth: 0.5,
+            borderColor: "#3b6d3b",
+            borderBottomLeftRadius: 10,
+            borderBottomRightRadius: 10,
+            flexDirection: "row",
+            alignItems: "center",
+          }}
+        >
+          <Fontisto name="locked" size={24} color="#3b6d3b" />
+          <TextInput
+            style={{ flex: 1, marginLeft: 10, fontSize: 16 }}
+            placeholderTextColor={"#3b6d3b"}
+            placeholder="Password"
+            secureTextEntry={!passwordVisible}
+            onChangeText={setPassword}
+            value={password}
+          />
+          <TouchableOpacity onPress={togglePasswordVisibility}>
+            <Ionicons
+              name={passwordVisible ? "eye-off" : "eye"}
+              size={24}
+              color="#3b6d3b"
+            />
+          </TouchableOpacity>
+        </View>
+        {/* Submit Button */}
+        <TouchableOpacity
+          style={{
+            height: 50,
+            borderRadius: 20,
+            backgroundColor: "#3b6d3b",
+            marginVertical: 10,
+            padding: 10,
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+          onPress={handleSubmit}
         >
           {loading ? (
-            <ActivityIndicator color="#4c7c54" />
+            <ActivityIndicator size="small" color="#ffffff" />
           ) : (
-            <Text
-              style={{
-                textAlign: "center",
-                fontWeight: "bold",
-                fontSize: 16,
-                color: "#4c7c54",
-              }}
-            >
-              Register
+            <Text style={{ color: "#fbfbda", fontSize: 16 }}>
+              Create account
             </Text>
           )}
-        </Pressable>
-
-        <Pressable
-          onPress={() => navigation.goBack()}
-          style={{ marginTop: 10 }}
+        </TouchableOpacity>
+        <View
+          style={{
+            justifyContent: "space-evenly",
+            alignItems: "center",
+            width: 325,
+            padding: 10,
+            flexDirection: "row",
+            marginVertical: 10,
+          }}
         >
-          <Text style={{ textAlign: "center", fontSize: 16, color: "#fbfbda" }}>
-            Already have an account? Login
+          <Text style={{ color: "#3b6d3b" }}>Have an account?</Text>
+          <Text
+            style={{ color: "blue", fontSize: 16 }}
+            onPress={() => navigation.navigate("Login")}
+          >
+            Login
           </Text>
-        </Pressable>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+        </View>
+        {/* Divider */}
+        <View
+          style={{
+            flexDirection: "row",
+            padding: 16,
+            justifyContent: "space-evenly",
+            alignItems: "center",
+          }}
+        >
+          {/* <View
+            style={{
+              height: 0.5,
+              width: 80,
+              borderWidth: 0.5,
+              borderColor: "#3b6d3b",
+              marginRight: 10,
+            }}
+          /> */}
+          {/* <Text style={{ marginVertical: 15, color: "grey", fontSize: 16 }}>
+            Or Continue with
+          </Text>
+          <View
+            style={{
+              height: 0.5,
+              width: 80,
+              borderWidth: 0.5,
+              borderColor: "#3b6d3b",
+              marginLeft: 10,
+            }}
+          /> */}
+        </View>
+        {/* Google & Apple Buttons */}
+        {/* <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-evenly",
+            width: "100%",
+          }}
+        >
+          <TouchableOpacity
+            style={{
+              width: "45%",
+              height: 50,
+              borderRadius: 10,
+              backgroundColor: "whitesmoke",
+              flexDirection: "row",
+              marginVertical: 10,
+              padding: 10,
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <AntDesign
+              style={{ marginRight: 10 }}
+              name="apple1"
+              size={24}
+              color="black"
+            />
+            <Text style={{ alignSelf: "center", flex: 1, fontSize: 18 }}>
+              Apple
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{
+              width: "45%",
+              height: 50,
+              borderRadius: 10,
+              backgroundColor: "whitesmoke",
+              flexDirection: "row",
+              marginVertical: 10,
+              padding: 10,
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <AntDesign
+              style={{ marginRight: 10 }}
+              name="google"
+              size={24}
+              color="black"
+            />
+            <Text style={{ alignSelf: "center", flex: 1, fontSize: 18 }}>
+              Google
+            </Text>
+          </TouchableOpacity>
+        </View> */}
+      </View>
+      <View
+        style={{
+          width: "100%",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Text style={{ color: "#fbfbda", top: 60 }}>Developed by JOEL</Text>
+      </View>
+    </View>
   );
 };
 
-export default RegisterScreen;
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#3b6d3b",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+});
 
-const styles = StyleSheet.create({});
+export default RegisterScreen;
